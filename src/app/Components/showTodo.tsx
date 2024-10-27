@@ -9,8 +9,9 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import React from "react";
+import TodoForm from "./addTodo";
 
-interface TodoProps {
+export interface TodoProps {
   todo: TaskProps;
   onEdit: (editTodo: TaskProps) => void;
   onDelete: (todoId: number) => void;
@@ -21,55 +22,65 @@ export interface TaskProps {
   id: number;
   dueDate: Date;
 }
+
 const ShowTodo: React.FC = () => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await fetch("/api/tasks");
-        if (!response.ok) {
-          throw new Error("Failed to fetch tasks");
-        }
-        const data = await response.json();
-        setTasks(data);
-      } catch (error: unknown) {
-        setError((error as Error).message);
+  async function fetchTasks() {
+    try {
+      const res = await fetch("/api/tasks");
+      if (!res.ok) {
+        throw new Error("Failed to fetch tasks");
       }
-    };
+      const data = await res.json();
+      console.log(data);
+      setTasks(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
     fetchTasks();
   }, []);
+
   function HandleEditTask(editTodo: TaskProps) {
-    tasks.map((t) => {
-      if (t.id === editTodo.id) {
-        return editTodo;
-      } else {
-        return t;
-      }
-    });
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === editTodo.id ? editTodo : task))
+    );
+    // TODO: Implement an API call here to update the task on the backend
   }
   function HandleDeleteTask(todoId: number) {
-    tasks.filter((t) => t.id !== todoId);
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== todoId));
+    // TODO: Implement an API call here to delete the task on the backend
   }
 
   return (
-    <List>
-      {tasks.map((task, id) => (
-        <Task
-          key={id}
-          todo={task}
-          onEdit={HandleEditTask}
-          onDelete={HandleDeleteTask}
-        />
-      ))}
-    </List>
+    <>
+      <div>
+        <TodoForm refreshTasks={fetchTasks} />
+      </div>
+      <List>
+        {tasks.map((task) => (
+          <Task
+            key={task.id}
+            todo={task}
+            onEdit={HandleEditTask}
+            onDelete={HandleDeleteTask}
+          />
+        ))}
+      </List>
+    </>
   );
 };
 const Task = ({ todo, onEdit, onDelete }: TodoProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({ todo });
+
+  const handleEdit = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { title, value } = event.target;
+    setEditFormData((prev) => ({ ...prev, [title]: value }));
+  };
   let todoContent;
-  console.log(todo);
   if (isEditing) {
     todoContent = (
       <>

@@ -1,22 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Container } from "@mui/material";
-import AddTodo from "./Components/addTodo";
 import ShowTodo from "./Components/showTodo";
-
-export default async function Home() {
-  // return <Test />;
-  // const [todos, setTodos] = useState<TodoProps[]>([]);
-  // const HandleAddTask = (task: string) => {
-  //   setTodos([...todos, { task: task, done: false, id: uuidv4() }]);
-  // };
+import TodoForm from "./Components/addTodo";
+const Home = () => {
   return (
     <Container>
       <h1>Todolist</h1>
-      <AddTodo />
+      {/* <TodoForm /> */}
       <ShowTodo
-      // tasks={allTasks}
+      // tasks={tasks}
       // onEditTask={HandleEditTask}
       // onDeleteTask={HandleDeleteTask}
       />
     </Container>
   );
-}
+};
+export default Home;

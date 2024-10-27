@@ -2,39 +2,38 @@
 import React, { ChangeEvent, useState } from "react";
 import { Box, Button, FormControl, TextField } from "@mui/material";
 
-// interface TodoFormProps {
-//   addTask: (task: string) => void;
-// }
-function TodoForm() {
-  const [task, setTask] = useState<string>("");
-  const [responseMessage, setResponseMessage] = useState<string>("");
+interface TodoFormProps {
+  refreshTasks: () => void;
+}
+function TodoForm({ refreshTasks }: TodoFormProps) {
+  const [taskTitle, setTaskTitle] = useState<string>("");
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // addTask(task);sS
-    // setTask("");
+    const taskData = {
+      title: taskTitle,
+    };
     try {
-      const res = await fetch("api/tasks", {
+      const res = await fetch("/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify(taskData),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setResponseMessage("Task ${task.title} added successfully");
-      } else {
-        setResponseMessage("Error adding task");
+      if (!res.ok) {
+        throw new Error("Failed to add task");
       }
-      console.log(data);
+      setTaskTitle("");
+      refreshTasks();
     } catch (error) {
-      console.error("Error:", error);
-      setResponseMessage("Error adding task");
+      console.error(error);
+      // TODO: after clicking add, refetch and show all tasks
     }
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setTask(event.target.value);
+    setTaskTitle(event.target.value);
   };
 
   return (
@@ -43,7 +42,7 @@ function TodoForm() {
         <TextField
           label="Todo"
           required
-          value={task}
+          value={taskTitle}
           onChange={handleChange}
         ></TextField>
       </FormControl>

@@ -10,50 +10,198 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("POSTGRES_PRISMA_URL") 
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 model Task {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
+  description       String?  @db.VarChar(1000)
   done      Boolean  @default(false)
-  dueDate   DateTime @db.Date
-  project   Project  @relation(fields: [projectId],references: [id])
-  projectId Int     
-  user      User     @relation(fields: [userId],references: [id])
+  dueDate   DateTime? @db.Date
+  completion_date   DateTime?
+  status            String?
+  priority          Int?
+  predicted_duration Int?
+  actual_duration   Int?
+  pomodoro_cycles   Int?
+  comments          Task_Comment[]
+  attachments       Task_Attachment[]
+  userTasks         User_Task[]
+  histories         Task_History[]
+  predictions       AI_Prediction[]
+  state            Task_State[]
+  progress        Int?  @default(0)
+  dependencies      Task_Dependency[] @relation("TaskDependency")
+  dependents        Task_Dependency[] @relation("TaskDependents")
+
+  project   Project?  @relation(fields: [projectId],references: [id])
+  projectId Int?     
   userId    Int
-  taskTags  TaskTag[]
-  tags      Tag[]    @relation("TaskTags")
+  tags  Task_Tag[]
   
+
+  Reccuring_task Reccuring_task[]
+
+  Reminder Reminder[]
+
+  TimeLog TimeLog[]
 }
 
+model Reccuring_task{
+  id        Int     @id @default(autoincrement())
+  taskId    Int     @unique
+  interval  String  
+  nextRun   DateTime
+  
+  task      Task    @relation(fields: [taskId], references: [id])
+}
 model Project {
   id     Int     @id @default(autoincrement())
   title  String  @db.VarChar(255)
   tasks  Task[]
-  user   User    @relation(fields: [userId],references: [id])
-  userId Int
+  description   String
+  creation_date DateTime
+  users       User_Project[]
 
 }
 
 model User {
   id      Int      @id @default(autoincrement())
-  // email   String   @unique
+  email   String   @unique
   name    String?  @db.VarChar(255)
-  tasks   Task[]
-  projects Project[]
+  password  String
+  projects  User_Project[]
+  tasks     User_Task[]
+  comments  Task_Comment[]
 
+
+  TimeLog TimeLog[]
 }
+
 model Tag{
   id      Int     @id @default(autoincrement())
   name    String  @db.VarChar(255) @unique
-  taskTags  TaskTag[]
-  tasks   Task[]  @relation("TaskTags")
+  colour  String
+  tasks  Task_Tag[]
 }
-model TaskTag{
-  taskId  Int
-  tagId   Int
-  task    Task  @relation(fields: [taskId],references: [id],onDelete: Cascade)
-  tag     Tag   @relation(fields: [tagId],references: [id],onDelete: Cascade)
 
-  @@id([taskId,tagId])
+model Task_Tag{
+  task_id  Int
+  tag_id   Int
+  task    Task  @relation(fields: [task_id],references: [id],onDelete: Cascade)
+  tag     Tag   @relation(fields: [tag_id],references: [id],onDelete: Cascade)
+
+  @@id([task_id,tag_id])
+}
+model User_Project {
+  user_id    Int
+  project_id Int
+  role_id    Int
+  permissions String
+  
+  user       User      @relation(fields: [user_id], references: [id])
+  project    Project   @relation(fields: [project_id], references: [id])
+  role       Role      @relation(fields: [role_id], references: [id])
+
+  @@id([user_id, project_id])
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  users       User_Project[]
+}
+
+model Task_Dependency {
+  task_id          Int
+  dependent_task_id Int
+  
+  task             Task @relation("TaskDependency", fields: [task_id], references: [id])
+  dependentTask    Task @relation("TaskDependents", fields: [dependent_task_id], references: [id])
+
+  @@id([task_id, dependent_task_id])
+}
+
+model TimeLog {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  userId    Int
+  startTime DateTime
+  endTime   DateTime
+
+  task      Task     @relation(fields: [taskId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+model Reminder {
+  id        Int     @id @default(autoincrement())
+  taskId    Int
+  remindAt  DateTime
+  method    String 
+  
+  task      Task    @relation(fields: [taskId], references: [id])
+}
+
+model Task_Comment {
+  id      Int    @id @default(autoincrement())
+  text    String
+  date    DateTime
+  user_id Int
+  task_id Int
+  
+  user    User   @relation(fields: [user_id], references: [id])
+  task    Task   @relation(fields: [task_id], references: [id])
+}
+
+model Task_Attachment {
+  id       Int    @id @default(autoincrement())
+  filename String
+  path     String
+  task_id  Int
+  
+  task     Task   @relation(fields: [task_id], references: [id])
+}
+
+model User_Task {
+  user_id     Int
+  task_id     Int
+  responsibility String
+  start_time  DateTime
+  
+  user        User   @relation(fields: [user_id], references: [id])
+  task        Task   @relation(fields: [task_id], references: [id])
+
+  @@id([user_id, task_id])
+}
+
+
+model Task_History {
+  id          Int    @id @default(autoincrement())
+  task_id     Int
+  action      String
+  date        DateTime
+  description String
+  
+  task        Task   @relation(fields: [task_id], references: [id])
+}
+
+model AI_Prediction {
+  id           Int    @id @default(autoincrement())
+  predicted_task Json
+  task_id      Int
+  recommendation String
+  date         DateTime
+  
+  task         Task   @relation(fields: [task_id], references: [id])
+}
+
+model Task_State {
+  id          Int    @id @default(autoincrement())
+  task_id     Int
+  state_from  String
+  state_to    String
+  change_date DateTime
+  
+  task        Task   @relation(fields: [task_id], references: [id])
 }
