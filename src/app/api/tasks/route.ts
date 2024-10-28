@@ -46,7 +46,7 @@ export async function  POST(req: Request) {
   catch(error){
     return NextResponse.json({ error: "Error creating tasks" }, { status: 500 });  }
 }
-export async function PUT (req: NextRequest){
+export async function PUT (req: Request){
   try{
     const url = new URL(req.url);
     const dataId = url.searchParams.get("id");
