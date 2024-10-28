@@ -3,32 +3,31 @@ import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  return NextResponse.json({ message: "API is working!" });
-  // const url = new URL(req.url);
-  // const dataId = url.searchParams.get("id");
-  // console.log(dataId);
-  //   if (dataId) {
-  //     try{
-  //       const task = await prisma.task.findUnique({
-  //         where: { id: parseInt(dataId) },
-  //       });
-  //       if(!task){
-  //         return NextResponse.json({ error: "Task not found" }, { status: 404 });
-  //       }
-  //       return NextResponse.json(task, { status: 200 });
-  //     }catch(error){
-  //       return NextResponse.json({ error: "Error fetching task" }, { status: 500 });
-  //     }
-  //   }
-  //     else{
-  //       try{
+  const url = new URL(req.url);
+  const dataId = url.searchParams.get("id");
+  console.log(dataId);
+    if (dataId) {
+      try{
+        const task = await prisma.task.findUnique({
+          where: { id: parseInt(dataId) },
+        });
+        if(!task){
+          return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        }
+        return NextResponse.json(task, { status: 200 });
+      }catch(error){
+        return NextResponse.json({ error: "Error fetching task" }, { status: 500 });
+      }
+    }
+      else{
+        try{
     
-  //         const tasks = await prisma.task.findMany();
-  //         return NextResponse.json(tasks, { status: 200 })
+          const tasks = await prisma.task.findMany();
+          return NextResponse.json(tasks, { status: 200 })
         
-  //       } catch (error) {
-  //         return NextResponse.json({ error: "Error fetching tasks" }, { status: 500 });  }
-  //       }
+        } catch (error) {
+          return NextResponse.json({ error: "Error fetching tasks" }, { status: 500 });  }
+        }
       }
 // export async function  POST(req: NextRequest) {
 //   try{
