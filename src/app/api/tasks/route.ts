@@ -1,32 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import prisma from "../../../../lib/prisma";
-// import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const dataId = url.searchParams.get("id");
-  console.log(dataId);
     if (dataId) {
       try{
         const task = await prisma.task.findUnique({
           where: { id: parseInt(dataId) },
         });
         if(!task){
-          return Response.json({ error: "Task not found" }, { status: 404 });
+          return NextResponse.json({ error: "Task not found" });
         }
-        return Response.json(task, { status: 200 });
+        return NextResponse.json(task,);
       }catch(error){
-        return Response.json({ error: "Error fetching task" }, { status: 500 });
+        return NextResponse.json({ error: "Error fetching task" });
       }
     }
       else{
         try{
     
           const tasks = await prisma.task.findMany();
-          return Response.json(tasks, { status: 200 })
+          return NextResponse.json(tasks)
         
         } catch (error) {
-          return Response.json({ error: "Error fetching tasks" }, { status: 500 });  }
+          return NextResponse.json({ error: "Error fetching tasks" });  }
         }
       }
 // export async function  POST(req: NextRequest) {
