@@ -1,15 +1,36 @@
-import { parse } from "path";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import prisma from "../../../../lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(){
-  try {
-    const tasks = await prisma.task.findMany();
-    return NextResponse.json(tasks, { status: 200 })
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const dataId = url.searchParams.get("id");
+  console.log(dataId);
+    if (dataId) {
+      try{
+        const task = await prisma.task.findUnique({
+          where: { id: parseInt(dataId) },
+        });
+        if(!task){
+          return NextResponse.json({ error: "Task not found" }, { status: 404 });
+        }
+        return NextResponse.json(task, { status: 200 });
+      }catch(error){
+        return NextResponse.json({ error: "Error fetching task" }, { status: 500 });
+      }
+    }
+      else{
+        try{
     
-  } catch (error) {
-    return NextResponse.json({ error: "Error fetching tasks" }, { status: 500 });  }
-}
+          const tasks = await prisma.task.findMany();
+          return NextResponse.json(tasks, { status: 200 })
+        
+        } catch (error) {
+          return NextResponse.json({ error: "Error fetching tasks" }, { status: 500 });  }
+        }
+      }
+
+
 
 export async function  POST(req: Request) {
   try{
@@ -27,19 +48,15 @@ export async function  POST(req: Request) {
 }
 export async function PUT (req:NextResponse){
   try{
-    const {searchParams} = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if(!id){
+    const url = new URL(req.url);
+    const dataId = url.searchParams.get("id");
+    if(!dataId){
       return NextResponse.json({ error: "Task id is required" }, { status: 400 });
     }
-    const {title} = await req.json();
-
+    const {...data} = await req.json();
     const updatedTask = await prisma.task.update({
-      where:{id: parseInt(id)},
-      data:{
-        title
-      },
+      where:{id: parseInt(dataId)},
+      data: data,
     });
     return NextResponse.json(updatedTask);
   }
@@ -47,19 +64,21 @@ export async function PUT (req:NextResponse){
     return NextResponse.json({ error: "Error updating task" }, { status: 500 });
   }
 }
-export async function DELETE (req:NextResponse){
+export async function DELETE (req: NextRequest){
+  
   try{
-    const {searchParams} = new URL(req.url);
-    const id = searchParams.get("id");
-    if(!id){
+    const url = new URL(req.url);
+    const dataId = url.searchParams.get("id");
+    if(!dataId){
       return NextResponse.json({ error: "Task id is required" }, { status: 400 });
     }
     const deletedTask = await prisma.task.delete({
-      where:{id: parseInt(id)},
+      where: { id: parseInt(dataId) },
     });
     return NextResponse.json(deletedTask);
   }
   catch(error){
-    return NextResponse.json({ error: "Error deleting task" }, { status: 500 });
+    // return NextResponse.json({ error: "Error deleting task" }, { status: 500 });
+    return console.log(error)
   }
 }

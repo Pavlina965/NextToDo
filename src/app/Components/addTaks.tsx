@@ -2,10 +2,10 @@
 import React, { ChangeEvent, useState } from "react";
 import { Box, Button, FormControl, TextField } from "@mui/material";
 
-interface TodoFormProps {
+interface TaskFormProps {
   refreshTasks: () => void;
 }
-function TodoForm({ refreshTasks }: TodoFormProps) {
+function AddTaskForm({ refreshTasks }: TaskFormProps) {
   const [taskTitle, setTaskTitle] = useState<string>("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,7 +28,6 @@ function TodoForm({ refreshTasks }: TodoFormProps) {
       refreshTasks();
     } catch (error) {
       console.error(error);
-      // TODO: after clicking add, refetch and show all tasks
     }
   };
 
@@ -40,7 +39,7 @@ function TodoForm({ refreshTasks }: TodoFormProps) {
     <Box component="form" onSubmit={handleSubmit}>
       <FormControl>
         <TextField
-          label="Todo"
+          label="AddTask"
           required
           value={taskTitle}
           onChange={handleChange}
@@ -52,4 +51,4 @@ function TodoForm({ refreshTasks }: TodoFormProps) {
     </Box>
   );
 }
-export default TodoForm;
+export default AddTaskForm;
