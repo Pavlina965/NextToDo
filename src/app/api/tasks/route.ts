@@ -2,7 +2,7 @@
 import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const dataId = url.searchParams.get("id");
   console.log(dataId);
@@ -29,10 +29,7 @@ export async function GET(req: Request) {
           return NextResponse.json({ error: "Error fetching tasks" }, { status: 500 });  }
         }
       }
-
-
-
-export async function  POST(req: Request) {
+export async function  POST(req: NextRequest) {
   try{
     const data = await req.json();
     const newTask = await prisma.task.create({
@@ -46,7 +43,7 @@ export async function  POST(req: Request) {
   catch(error){
     return NextResponse.json({ error: "Error creating tasks" }, { status: 500 });  }
 }
-export async function PUT (req: Request){
+export async function PUT (req: NextRequest){
   try{
     const url = new URL(req.url);
     const dataId = url.searchParams.get("id");
@@ -64,7 +61,7 @@ export async function PUT (req: Request){
     return NextResponse.json({ error: "Error updating task" }, { status: 500 });
   }
 }
-export async function DELETE (req: Request){
+export async function DELETE (req: NextRequest){
   
   try{
     const url = new URL(req.url);
@@ -78,7 +75,7 @@ export async function DELETE (req: Request){
     return NextResponse.json(deletedTask);
   }
   catch(error){
-    // return NextResponse.json({ error: "Error deleting task" }, { status: 500 });
-    return console.log(error)
+    return NextResponse.json({ error: "Error deleting task" }, { status: 500 });
+    // return console.log(error)
   }
 }
