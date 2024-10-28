@@ -2,7 +2,7 @@
 import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const url = new URL(req.url);
   const dataId = url.searchParams.get("id");
   console.log(dataId);
@@ -46,7 +46,7 @@ export async function  POST(req: Request) {
   catch(error){
     return NextResponse.json({ error: "Error creating tasks" }, { status: 500 });  }
 }
-export async function PUT (req:NextRequest){
+export async function PUT (req:Request){
   try{
     const url = new URL(req.url);
     const dataId = url.searchParams.get("id");
@@ -64,7 +64,7 @@ export async function PUT (req:NextRequest){
     return NextResponse.json({ error: "Error updating task" }, { status: 500 });
   }
 }
-export async function DELETE (req: NextRequest){
+export async function DELETE (req: Request){
   
   try{
     const url = new URL(req.url);
