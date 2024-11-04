@@ -32,6 +32,7 @@ function AddTaskForm({ refreshTasks }: TaskFormProps) {
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log("hello");
     setTaskTitle(event.target.value);
   };
 

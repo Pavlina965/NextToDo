@@ -8,11 +8,12 @@ import {
   List,
   ListItem,
   ListItemText,
+  Modal,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import React from "react";
 import AddTaskForm from "./addTaks";
-import { on } from "events";
+import EditTaskForm from "./editTask";
 
 export interface TodoProps {
   todo: TaskProps;
@@ -21,13 +22,15 @@ export interface TodoProps {
 }
 export interface TaskProps {
   title: string;
-  done: boolean | undefined;
+  description: string | undefined;
+  done: boolean;
   id: number;
   dueDate: Date | undefined;
 }
 
 const ShowTaks: React.FC = () => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
+  // const [editTask, setEditTask] = useState<TaskProps | null>(null);
   async function fetchTasks() {
     try {
       const res = await fetch("/api/tasks", {
@@ -65,7 +68,6 @@ const ShowTaks: React.FC = () => {
       console.error(error);
     }
     fetchTasks();
-    // TODO: Implement an API call here to update the task on the backend
   }
   async function HandleDeleteTask(taskId: number) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
@@ -106,9 +108,17 @@ const ShowTaks: React.FC = () => {
   );
 };
 const Task = ({ todo, onEdit, onDelete }: TodoProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const handleOpen = () => setIsEditing(true);
+  const handleClose = () => setIsEditing(false);
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onEdit(todo, { ...todo, done: true });
+    if (event.target.checked) {
+      onEdit(todo, { ...todo, done: true });
+    } else {
+      onEdit(todo, { ...todo, done: false });
+    }
   };
+
   return (
     <ListItem>
       <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
@@ -116,7 +126,21 @@ const Task = ({ todo, onEdit, onDelete }: TodoProps) => {
         primary={todo.title}
         sx={{ textDecoration: todo.done ? "line-through" : "none" }}
       />
-      <Button onClick={() => onEdit(todo, { ...todo })}>Edit</Button>
+      <Button
+        onClick={() => {
+          // console.log(todo);
+          handleOpen();
+          // EditTaskForm(todo);
+        }}
+      >
+        Edit
+      </Button>
+      {isEditing && (
+        <Modal open={isEditing} onClose={handleClose}>
+          <EditTaskForm task={todo} />
+        </Modal>
+      )}
+      {/* onEdit(todo, { ...todo })}>Edit</Button> */}
       <Button onClick={() => onDelete(todo.id)}>Delete</Button>
     </ListItem>
   );
