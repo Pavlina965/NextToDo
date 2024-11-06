@@ -14,10 +14,13 @@ import { useEffect, useState } from "react";
 import React from "react";
 import AddTaskForm from "./addTaks";
 import EditTaskForm from "./editTask";
+import { todo } from "node:test";
+import { on } from "events";
+// import { Task } from "@prisma/client";
 
 export interface TodoProps {
   todo: TaskProps;
-  onEdit: (editTodo: TaskProps, data: TaskProps) => void;
+  onEdit: (todo: TaskProps, data: TaskProps) => void;
   onDelete: (todoId: number) => void;
 }
 export interface TaskProps {
@@ -30,7 +33,7 @@ export interface TaskProps {
 
 const ShowTaks: React.FC = () => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
-  // const [editTask, setEditTask] = useState<TaskProps | null>(null);
+  const [editTask, setEditTask] = useState<TaskProps | null>(null);
   async function fetchTasks() {
     try {
       const res = await fetch("/api/tasks", {
@@ -50,28 +53,12 @@ const ShowTaks: React.FC = () => {
     fetchTasks();
   }, []);
 
-  async function HandleEditTask(task: TaskProps, data: TaskProps | null) {
-    try {
-      const res = await fetch(`/api/tasks?id=${task.id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          id: task.id,
-          ...data,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch task");
-      }
-      const updatedData = await res.json();
-      console.log(updatedData);
-    } catch (error) {
-      console.error(error);
-    }
-    fetchTasks();
+  async function HandleEditTask(task: TaskProps, data: TaskProps) {
+    setEditTask(tasks.find((t) => t.id === task.id) ?? null);
   }
   async function HandleDeleteTask(taskId: number) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    console.log("Deleting task with ID:", taskId);
+    // console.log("Deleting task with ID:", taskId);
     try {
       const res = await fetch(`/api/tasks?id=${taskId}`, {
         method: "DELETE",
@@ -88,7 +75,6 @@ const ShowTaks: React.FC = () => {
       fetchTasks();
     }
   }
-
   return (
     <>
       <div>
@@ -101,22 +87,42 @@ const ShowTaks: React.FC = () => {
             todo={task}
             onEdit={HandleEditTask}
             onDelete={HandleDeleteTask}
+            setTasks={setTasks}
           />
         ))}
       </List>
     </>
   );
 };
-const Task = ({ todo, onEdit, onDelete }: TodoProps) => {
+const Task = ({ todo, onEdit, onDelete, setTasks }: TodoProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const handleOpen = () => setIsEditing(true);
   const handleClose = () => setIsEditing(false);
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      onEdit(todo, { ...todo, done: true });
-    } else {
-      onEdit(todo, { ...todo, done: false });
+
+  const handleCheckboxChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
+    const updatedTask = { ...todo, done: checked };
+    setTasks((prevTasks: TaskProps[]) =>
+      prevTasks.map((task) => (task.id === todo.id ? updatedTask : task))
+    );
+    // onEdit(todo, updatedTask);
+    try {
+      const res = await fetch(`/api/tasks?id=${updatedTask.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedTask),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to update task");
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
     }
+    console.log(updatedTask);
   };
 
   return (
