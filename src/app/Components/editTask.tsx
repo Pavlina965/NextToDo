@@ -3,15 +3,19 @@ import { TaskProps } from "./showTask";
 import React from "react";
 import updateTask from "../utils/updateTask";
 import { fetchTasks } from "../utils/fetchTasks";
+import { DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
 interface EditTaskFormProps {
   task: TaskProps;
   onClose: () => void;
-  loadTasks: () => void;
+  refreshTasks: () => void;
 }
 const EditTaskForm: React.FC<EditTaskFormProps> = ({
   task,
   onClose,
-  loadTasks,
+  refreshTasks,
 }) => {
   const [updatedTask, setUpdatedTask] = React.useState<TaskProps>(task);
   // console.log(updatedTask);
@@ -20,22 +24,49 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
     const { name, value } = event.target;
     setUpdatedTask((prevTask) => ({
       ...prevTask,
-      [name]: name === "dueDate" ? new Date(value).toISOString() : value,
+      [name]: name === "dueDate" ? dayjs(value).toISOString() : value,
+    }));
+  };
+  const HandleDateChange = (value: Dayjs | null) => {
+    setUpdatedTask((prevTask) => ({
+      ...prevTask,
+      dueDate: value ? value.toDate() : undefined,
     }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateTask(updatedTask);
+    updateTask(updatedTask).then(() => {
+      refreshTasks();
+    });
     onClose();
-    loadTasks();
+
     console.log(fetchTasks());
     console.log("saving: " + updatedTask);
   };
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: "60%" }}>
-      <FormControl component="form" onSubmit={handleSubmit}>
+    <Box
+      sx={{
+        width: "300px",
+        position: "absolute",
+        top: "30%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      <FormControl
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          background: "white",
+          p: 2,
+          borderRadius: "5px",
+        }}
+        component="form"
+        onSubmit={handleSubmit}
+      >
         <TextField
+          sx={{ pb: 2 }}
           name="title"
           label="TaskTitle"
           required
@@ -43,21 +74,21 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
           onChange={handleInputChange}
         />
         <TextField
+          sx={{ pb: 2 }}
           name="description"
           label="Description"
           value={updatedTask.description || ""}
           onChange={handleInputChange}
         />
-        <TextField
-          name="dueDate"
-          label="DueDate"
-          value={
-            updatedTask.dueDate
-              ? new Date(updatedTask.dueDate).toISOString().substring(0, 10)
-              : ""
-          }
-          onChange={handleInputChange}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            value={updatedTask.dueDate ? dayjs(updatedTask.dueDate) : null}
+            sx={{ pb: 2 }}
+            name="dueDate"
+            label="Due date"
+            onChange={HandleDateChange}
+          />
+        </LocalizationProvider>
         <Button type="submit">Save</Button>
       </FormControl>
     </Box>

@@ -47,13 +47,6 @@ const ShowTaks: React.FC = () => {
     loadTasks();
   }, []);
 
-  const refetchTasks = async () => {
-    await fetchTasks().then((updatedTasks) => {
-      setTasks(updatedTasks);
-      console.log(updatedTasks);
-    });
-  };
-
   async function HandleDeleteTask(taskId: number) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
     deleteTask(taskId);
@@ -85,7 +78,7 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
   };
   const refreshTasks = async () => {
     const updatedTasks = await fetchTasks();
-    console.log(updatedTasks);
+
     setTasks(updatedTasks);
   };
   const handleCheckboxChange = async (
@@ -93,13 +86,14 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
     checked: boolean
   ) => {
     const updatedTask = { ...todo, done: checked };
-    setTasks((prevTasks: TaskProps[]) =>
-      prevTasks.map((task: TaskProps) =>
-        task.id === todo.id ? updatedTask : task
-      )
-    );
-    updateTask(updatedTask);
-    refreshTasks();
+    // setTasks((prevTasks: TaskProps[]) =>
+    //   prevTasks.map((task: TaskProps) =>
+    //     task.id === todo.id ? updatedTask : task
+    //   )
+    // );
+    updateTask(updatedTask).then(() => {
+      refreshTasks();
+    });
   };
 
   return (
@@ -121,11 +115,10 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
         <EditTaskForm
           task={todo}
           onClose={handleCloseModal}
-          loadTasks={refreshTasks}
+          refreshTasks={refreshTasks}
         />
       </Modal>
 
-      {/* onEdit(todo, { ...todo })}>Edit</Button> */}
       <Button onClick={() => onDelete(todo.id)}>Delete</Button>
     </ListItem>
   );

@@ -1,6 +1,6 @@
 "use client";
 import React, { ChangeEvent, useState } from "react";
-import { Box, Button, FormControl, TextField } from "@mui/material";
+import { Box, Button, FormControl, Modal, TextField } from "@mui/material";
 
 interface TaskFormProps {
   refreshTasks: () => void;
@@ -36,20 +36,32 @@ function AddTaskForm({ refreshTasks }: TaskFormProps) {
     setTaskTitle(event.target.value);
   };
 
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   return (
-    <Box component="form" onSubmit={handleSubmit}>
-      <FormControl>
-        <TextField
-          label="AddTask"
-          required
-          value={taskTitle}
-          onChange={handleChange}
-        ></TextField>
-      </FormControl>
-      <Button type="submit" variant="contained">
-        Add
+    <>
+      <Button variant="contained" onClick={handleOpen}>
+        Add Task
       </Button>
-    </Box>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Modal open={open} onClose={handleClose}>
+          <FormControl>
+            <TextField
+              label="AddTask"
+              required
+              value={taskTitle}
+              onChange={handleChange}
+            />
+            <Button type="submit" variant="contained">
+              Add
+            </Button>
+          </FormControl>
+        </Modal>
+      </Box>
+    </>
   );
 }
+
 export default AddTaskForm;
