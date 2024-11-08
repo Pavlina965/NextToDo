@@ -1,12 +1,21 @@
 import { Box, Button, FormControl, TextField } from "@mui/material";
 import { TaskProps } from "./showTask";
 import React from "react";
-
-interface FormData {
-  [key: string]: unknown | undefined;
+import updateTask from "../utils/updateTask";
+import { fetchTasks } from "../utils/fetchTasks";
+interface EditTaskFormProps {
+  task: TaskProps;
+  onClose: () => void;
+  loadTasks: () => void;
 }
-const EditTaskForm = ({ task }: { task: TaskProps }) => {
+const EditTaskForm: React.FC<EditTaskFormProps> = ({
+  task,
+  onClose,
+  loadTasks,
+}) => {
   const [updatedTask, setUpdatedTask] = React.useState<TaskProps>(task);
+  // console.log(updatedTask);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setUpdatedTask((prevTask) => ({
@@ -15,33 +24,39 @@ const EditTaskForm = ({ task }: { task: TaskProps }) => {
     }));
   };
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-    task: TaskProps
-  ) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    updateTask(updatedTask);
+    onClose();
+    loadTasks();
+    console.log(fetchTasks());
+    console.log("saving: " + updatedTask);
   };
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <FormControl
-        component="form"
-        onSubmit={(event) => handleSubmit(event, task)}
-      >
+    <Box sx={{ display: "flex", flexDirection: "column", width: "60%" }}>
+      <FormControl component="form" onSubmit={handleSubmit}>
         <TextField
+          name="title"
           label="TaskTitle"
           required
           value={updatedTask.title}
-          onChange={(event) => (task.title = event.target.value)}
+          onChange={handleInputChange}
         />
         <TextField
+          name="description"
           label="Description"
-          value={task.description}
-          onChange={(event) => (task.description = event.target.value)}
+          value={updatedTask.description || ""}
+          onChange={handleInputChange}
         />
         <TextField
+          name="dueDate"
           label="DueDate"
-          value={task.dueDate}
-          onChange={(event) => (task.dueDate = new Date(event.target.value))}
+          value={
+            updatedTask.dueDate
+              ? new Date(updatedTask.dueDate).toISOString().substring(0, 10)
+              : ""
+          }
+          onChange={handleInputChange}
         />
         <Button type="submit">Save</Button>
       </FormControl>

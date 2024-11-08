@@ -4,7 +4,6 @@
 import {
   Button,
   Checkbox,
-  Input,
   List,
   ListItem,
   ListItemText,
@@ -14,14 +13,15 @@ import { useEffect, useState } from "react";
 import React from "react";
 import AddTaskForm from "./addTaks";
 import EditTaskForm from "./editTask";
-import { todo } from "node:test";
-import { on } from "events";
-// import { Task } from "@prisma/client";
+import { fetchTasks } from "../utils/fetchTasks";
+import { deleteTask } from "../utils/deleteTask";
+import updateTask from "../utils/updateTask";
+import { set } from "react-hook-form";
 
 export interface TodoProps {
   todo: TaskProps;
-  onEdit: (todo: TaskProps, data: TaskProps) => void;
   onDelete: (todoId: number) => void;
+  setTasks: React.Dispatch<React.SetStateAction<TaskProps[]>>;
 }
 export interface TaskProps {
   title: string;
@@ -34,58 +34,41 @@ export interface TaskProps {
 const ShowTaks: React.FC = () => {
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [editTask, setEditTask] = useState<TaskProps | null>(null);
-  async function fetchTasks() {
+
+  const loadTasks = async () => {
     try {
-      const res = await fetch("/api/tasks", {
-        method: "GET",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch tasks");
-      }
-      const data = await res.json();
+      const data = await fetchTasks();
       setTasks(data);
     } catch (error) {
-      console.error(error);
+      console.error("Error loading tasks:", error);
     }
-  }
-
+  };
   useEffect(() => {
-    fetchTasks();
+    loadTasks();
   }, []);
 
-  async function HandleEditTask(task: TaskProps, data: TaskProps) {
-    setEditTask(tasks.find((t) => t.id === task.id) ?? null);
-  }
+  const refetchTasks = async () => {
+    await fetchTasks().then((updatedTasks) => {
+      setTasks(updatedTasks);
+      console.log(updatedTasks);
+    });
+  };
+
   async function HandleDeleteTask(taskId: number) {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    // console.log("Deleting task with ID:", taskId);
-    try {
-      const res = await fetch(`/api/tasks?id=${taskId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: taskId }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to delete task");
-      }
-    } catch (error) {
-      console.error(error);
-      fetchTasks();
-    }
+    deleteTask(taskId);
+    // await refetchTasks();
   }
   return (
     <>
       <div>
-        <AddTaskForm refreshTasks={fetchTasks} />
+        <AddTaskForm refreshTasks={() => loadTasks()} />
       </div>
       <List>
         {tasks.map((task) => (
           <Task
             key={task.id}
             todo={task}
-            onEdit={HandleEditTask}
             onDelete={HandleDeleteTask}
             setTasks={setTasks}
           />
@@ -94,35 +77,29 @@ const ShowTaks: React.FC = () => {
     </>
   );
 };
-const Task = ({ todo, onEdit, onDelete, setTasks }: TodoProps) => {
+const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const handleOpen = () => setIsEditing(true);
-  const handleClose = () => setIsEditing(false);
-
+  const handleOpenModal = () => setIsEditing(true);
+  const handleCloseModal = () => {
+    setIsEditing(false);
+  };
+  const refreshTasks = async () => {
+    const updatedTasks = await fetchTasks();
+    console.log(updatedTasks);
+    setTasks(updatedTasks);
+  };
   const handleCheckboxChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
   ) => {
     const updatedTask = { ...todo, done: checked };
     setTasks((prevTasks: TaskProps[]) =>
-      prevTasks.map((task) => (task.id === todo.id ? updatedTask : task))
+      prevTasks.map((task: TaskProps) =>
+        task.id === todo.id ? updatedTask : task
+      )
     );
-    // onEdit(todo, updatedTask);
-    try {
-      const res = await fetch(`/api/tasks?id=${updatedTask.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedTask),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to update task");
-      }
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-    console.log(updatedTask);
+    updateTask(updatedTask);
+    refreshTasks();
   };
 
   return (
@@ -134,18 +111,20 @@ const Task = ({ todo, onEdit, onDelete, setTasks }: TodoProps) => {
       />
       <Button
         onClick={() => {
-          // console.log(todo);
-          handleOpen();
-          // EditTaskForm(todo);
+          handleOpenModal();
         }}
       >
         Edit
       </Button>
-      {isEditing && (
-        <Modal open={isEditing} onClose={handleClose}>
-          <EditTaskForm task={todo} />
-        </Modal>
-      )}
+
+      <Modal open={isEditing} onClose={handleCloseModal}>
+        <EditTaskForm
+          task={todo}
+          onClose={handleCloseModal}
+          loadTasks={refreshTasks}
+        />
+      </Modal>
+
       {/* onEdit(todo, { ...todo })}>Edit</Button> */}
       <Button onClick={() => onDelete(todo.id)}>Delete</Button>
     </ListItem>
