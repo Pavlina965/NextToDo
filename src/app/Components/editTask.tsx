@@ -26,9 +26,10 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateTask(updatedTask);
+    updateTask(updatedTask).then(() => {
+      loadTasks();
+    });
     onClose();
-    loadTasks();
     console.log(fetchTasks());
     console.log("saving: " + updatedTask);
   };
