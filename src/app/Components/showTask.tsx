@@ -9,26 +9,25 @@ import {
   ListItemText,
   Modal,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import React from "react";
-import AddTaskForm from "./addTaks";
+import CreateTaskForm from "./createTask";
 import EditTaskForm from "./editTask";
 import { fetchTasks } from "../utils/fetchTasks";
 import { deleteTask } from "../utils/deleteTask";
 import updateTask from "../utils/updateTask";
-import { set } from "react-hook-form";
 
 export interface TodoProps {
   todo: TaskProps;
-  onDelete: (todoId: number) => void;
+  onDelete: (todoId: number | undefined) => void;
   setTasks: React.Dispatch<React.SetStateAction<TaskProps[]>>;
 }
 export interface TaskProps {
-  title: string;
-  description: string | undefined;
-  done: boolean;
-  id: number;
-  dueDate: Date | undefined;
+  title?: string;
+  description?: string;
+  done?: boolean;
+  id?: number;
+  dueDate?: Date;
 }
 
 const ShowTaks: React.FC = () => {
@@ -47,16 +46,21 @@ const ShowTaks: React.FC = () => {
     loadTasks();
   }, []);
 
-  async function HandleDeleteTask(taskId: number) {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    deleteTask(taskId);
+  async function HandleDeleteTask(taskId: number | undefined) {
+    if (taskId !== undefined) {
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      deleteTask(taskId);
+    } else {
+      console.error("Task ID is undefined");
+    }
     // await refetchTasks();
   }
   return (
     <>
       <div>
-        <AddTaskForm refreshTasks={() => loadTasks()} />
+        <CreateTaskForm refreshTasks={() => loadTasks()} />
       </div>
+
       <List>
         {tasks.map((task) => (
           <Task

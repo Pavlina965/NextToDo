@@ -18,13 +18,12 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
   refreshTasks,
 }) => {
   const [updatedTask, setUpdatedTask] = React.useState<TaskProps>(task);
-  // console.log(updatedTask);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setUpdatedTask((prevTask) => ({
       ...prevTask,
-      [name]: name === "dueDate" ? dayjs(value).toISOString() : value,
+      [name]: value,
     }));
   };
   const HandleDateChange = (value: Dayjs | null) => {
