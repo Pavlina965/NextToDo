@@ -1,9 +1,10 @@
 import { TextField, Button, FormControl } from "@mui/material";
 import { ProjectProps } from "./fetchProjects";
 import { useState } from "react";
+import addProject from "../utils/addProject";
 
 export default function CreateProjectForm() {
-  const [project, setProject] = useState<ProjectProps[]>([]);
+  const [project, setProject] = useState<ProjectProps>({});
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     addProject(project).then(() => {});

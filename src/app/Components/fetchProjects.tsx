@@ -1,9 +1,9 @@
 import { fetchAllProjects } from "../utils/fetchAllProjects";
 import { useEffect, useState } from "react";
 export interface ProjectProps {
-  id: number;
-  title: string;
-  desc: string;
+  id?: number;
+  title?: string;
+  desc?: string;
 }
 export default function ShowProjects() {
   const [projects, setProjects] = useState<ProjectProps[]>([]);

@@ -1,5 +1,5 @@
-import { TaskProps } from "../Components/showTask";
-export default async function addProject(task: TaskProps) {
+import { ProjectProps } from "../Components/fetchProjects";
+  export default async function addProject(task: ProjectProps) {
     
 try {
       const res = await fetch(`/api/projects`, {

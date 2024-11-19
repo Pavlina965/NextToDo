@@ -2,12 +2,19 @@
 
 "use client";
 import {
+  Box,
   Button,
   Checkbox,
   List,
   ListItem,
   ListItemText,
   Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import { Suspense, useEffect, useState } from "react";
 import React from "react";
@@ -56,12 +63,33 @@ const ShowTaks: React.FC = () => {
     // await refetchTasks();
   }
   return (
-    <>
-      <div>
-        <CreateTaskForm refreshTasks={() => loadTasks()} />
-      </div>
-
-      <List>
+    <Box sx={{ boxShadow: 3 }}>
+      <CreateTaskForm refreshTasks={() => loadTasks()} />
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell>id</TableCell>
+              <TableCell>Task name</TableCell>
+              <TableCell>Due date</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Priority</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {tasks.map((task) => (
+              <Task
+                key={task.id}
+                todo={task}
+                onDelete={HandleDeleteTask}
+                setTasks={setTasks}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {/* <List>
         {tasks.map((task) => (
           <Task
             key={task.id}
@@ -70,8 +98,8 @@ const ShowTaks: React.FC = () => {
             setTasks={setTasks}
           />
         ))}
-      </List>
-    </>
+      </List> */}
+    </Box>
   );
 };
 const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
@@ -101,30 +129,57 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
   };
 
   return (
-    <ListItem>
-      <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
-      <ListItemText
-        primary={todo.title}
-        sx={{ textDecoration: todo.done ? "line-through" : "none" }}
-      />
-      <Button
-        onClick={() => {
-          handleOpenModal();
-        }}
-      >
-        Edit
-      </Button>
-
-      <Modal open={isEditing} onClose={handleCloseModal}>
-        <EditTaskForm
-          task={todo}
-          onClose={handleCloseModal}
-          refreshTasks={refreshTasks}
-        />
-      </Modal>
-
-      <Button onClick={() => onDelete(todo.id)}>Delete</Button>
-    </ListItem>
+    <TableRow sx={{ background: todo.done ? "#C3E6CB" : "none" }}>
+      <TableCell>
+        <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
+      </TableCell>
+      <TableCell>{todo.id}</TableCell>
+      <TableCell>{todo.title}</TableCell>
+      <TableCell>Date will be there</TableCell>
+      <TableCell>{todo.done ? "Done" : "Not done"}</TableCell>
+      <TableCell>Priority will be there</TableCell>
+      <TableCell>
+        <Button
+          onClick={() => {
+            handleOpenModal();
+          }}
+        >
+          Edit
+        </Button>
+        <Modal open={isEditing} onClose={handleCloseModal}>
+          <EditTaskForm
+            task={todo}
+            onClose={handleCloseModal}
+            refreshTasks={refreshTasks}
+          />
+        </Modal>
+        <Button onClick={() => onDelete(todo.id)}>Delete</Button>
+      </TableCell>
+    </TableRow>
   );
+  // <ListItem>
+  //   <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
+  //   <ListItemText
+  //     primary={todo.title}
+  //     sx={{ textDecoration: todo.done ? "line-through" : "none" }}
+  //   />
+  //   <Button
+  //     onClick={() => {
+  //       handleOpenModal();
+  //     }}
+  //   >
+  //     Edit
+  //   </Button>
+
+  //   <Modal open={isEditing} onClose={handleCloseModal}>
+  //     <EditTaskForm
+  //       task={todo}
+  //       onClose={handleCloseModal}
+  //       refreshTasks={refreshTasks}
+  //     />
+  //   </Modal>
+
+  //   <Button onClick={() => onDelete(todo.id)}>Delete</Button>
+  // </ListItem>
 };
 export default ShowTaks;

@@ -3,15 +3,13 @@ import React, { useState } from "react";
 import { Box, Button, FormControl, Modal, TextField } from "@mui/material";
 import { TaskProps } from "./showTask";
 import addTask from "../utils/addTask";
-import FetchProjects from "./fetchProjects";
-import CreateProjectForm from "./createProject";
+// import CreateProjectForm from "./createProject";
 interface TaskFormProps {
   refreshTasks: () => void;
 }
 function CreateTaskForm({ refreshTasks }: TaskFormProps) {
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<TaskProps>({});
-  const projects = FetchProjects();
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -69,17 +67,6 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
               onChange={handleInputChange}
             />
 
-            {projects.length > 0 ? (
-              <TextField label="Select project" select defaultValue={null}>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.title}
-                  </option>
-                ))}
-              </TextField>
-            ) : (
-              <CreateProjectForm />
-            )}
             <Button type="submit" variant="contained">
               Add
             </Button>
