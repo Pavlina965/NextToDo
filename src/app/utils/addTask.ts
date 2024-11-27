@@ -5,7 +5,7 @@ export default async function addTask(task: TaskProps) {
 try {
   const tasksWithDueDateUTC = {
     ...task,
-    dueDate: task.dueDate ? dayjs(task.dueDate).utc().toDate():null,
+    dueDate: task.dueDate ? dayjs(task.dueDate).utc().toISOString():null,
   };
       const res = await fetch(`/api/tasks`, {
         method: "POST",
@@ -15,10 +15,10 @@ try {
         body: JSON.stringify(tasksWithDueDateUTC),
         // body: JSON.stringify(task),
       });
+      console.log("saved value "+tasksWithDueDateUTC.dueDate);
       if (!res.ok) {
         throw new Error("Failed to update task");
       }
-      console.log("saved value "+tasksWithDueDateUTC);
     } catch (error) {
       console.error("Error updating task:", error);
     }
