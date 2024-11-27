@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
 import { TaskProps } from "../Components/showTask";
+
 export default async function addTask(task: TaskProps) {
     
 try {
   const tasksWithDueDateUTC = {
     ...task,
-    dueDate: task.dueDate ? dayjs(task.dueDate).utc().toISOString():null,
+    dueDate: dayjs(task.dueDate).add(1, 'hour')?.format('YYYY-MM-DDTHH:mm:ss.sssZ'),
   };
       const res = await fetch(`/api/tasks`, {
         method: "POST",
