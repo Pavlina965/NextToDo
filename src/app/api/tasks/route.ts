@@ -32,13 +32,16 @@ export async function  POST(req: NextRequest) {
     }
 
     const newTask = await prisma.task.create({
-      data:{
+      data:
+      {
         title: data.title,
         description: data.description,
         done: false,
         userId: 0,
+        dueDate: data.dueDate,
     },
     });
+    console.log(newTask.dueDate);
     return NextResponse.json(newTask, {status: 201});
   } catch (error) {
     console.error("Error creating task:", error);

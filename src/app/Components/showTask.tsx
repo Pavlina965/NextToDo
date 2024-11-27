@@ -5,9 +5,6 @@ import {
   Box,
   Button,
   Checkbox,
-  List,
-  ListItem,
-  ListItemText,
   Modal,
   Table,
   TableBody,
@@ -23,6 +20,12 @@ import EditTaskForm from "./editTask";
 import { fetchTasks } from "../utils/fetchTasks";
 import { deleteTask } from "../utils/deleteTask";
 import updateTask from "../utils/updateTask";
+import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface TodoProps {
   todo: TaskProps;
@@ -30,6 +33,7 @@ export interface TodoProps {
   setTasks: React.Dispatch<React.SetStateAction<TaskProps[]>>;
 }
 export interface TaskProps {
+  // localDate: string;
   title?: string;
   description?: string;
   done?: boolean;
@@ -45,6 +49,7 @@ const ShowTaks: React.FC = () => {
     try {
       const data = await fetchTasks();
       setTasks(data);
+      console.log(data);
     } catch (error) {
       console.error("Error loading tasks:", error);
     }
@@ -63,33 +68,37 @@ const ShowTaks: React.FC = () => {
     // await refetchTasks();
   }
   return (
-    <Box sx={{ boxShadow: 3 }}>
-      <CreateTaskForm refreshTasks={() => loadTasks()} />
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>id</TableCell>
-              <TableCell>Task name</TableCell>
-              <TableCell>Due date</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Priority</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tasks.map((task) => (
-              <Task
-                key={task.id}
-                todo={task}
-                onDelete={HandleDeleteTask}
-                setTasks={setTasks}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {/* <List>
+    <>
+      <Box sx={{ boxShadow: 3 }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>id</TableCell>
+                <TableCell>Task name</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Due date</TableCell>
+                {/* <TableCell>Status</TableCell> */}
+                <TableCell>Priority</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <CreateTaskForm refreshTasks={() => loadTasks()} />
+
+              {tasks.map((task) => (
+                <Task
+                  key={task.id}
+                  todo={task}
+                  onDelete={HandleDeleteTask}
+                  setTasks={setTasks}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {/* <List>
         {tasks.map((task) => (
           <Task
             key={task.id}
@@ -99,7 +108,8 @@ const ShowTaks: React.FC = () => {
           />
         ))}
       </List> */}
-    </Box>
+      </Box>
+    </>
   );
 };
 const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
@@ -118,11 +128,7 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
     checked: boolean
   ) => {
     const updatedTask = { ...todo, done: checked };
-    // setTasks((prevTasks: TaskProps[]) =>
-    //   prevTasks.map((task: TaskProps) =>
-    //     task.id === todo.id ? updatedTask : task
-    //   )
-    // );
+
     updateTask(updatedTask).then(() => {
       refreshTasks();
     });
@@ -135,13 +141,19 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
       </TableCell>
       <TableCell>{todo.id}</TableCell>
       <TableCell>{todo.title}</TableCell>
-      <TableCell>Date will be there</TableCell>
-      <TableCell>{todo.done ? "Done" : "Not done"}</TableCell>
+      <TableCell>{todo.description}</TableCell>
+      <TableCell>
+        {todo.dueDate
+          ? dayjs.utc(todo.dueDate).local().format("YYYY-MM-DD")
+          : "No due date"}
+      </TableCell>
+      {/* <TableCell>{todo.done ? "Done" : "Not done"}</TableCell> */}
       <TableCell>Priority will be there</TableCell>
       <TableCell>
         <Button
           onClick={() => {
             handleOpenModal();
+            console.log(todo);
           }}
         >
           Edit

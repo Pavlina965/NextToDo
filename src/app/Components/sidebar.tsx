@@ -26,13 +26,14 @@ export default function Sidebar() {
       sx={{
         width: "100%",
         maxWidth: 260,
-        bgcolor: "#4682B4",
+        bgcolor: "#3A6691",
+        color: "white",
         padding: 2,
         height: "100vh",
       }}
     >
       <h1>Menu</h1>
-      <List>
+      <List sx={{ color: "#E0E6EB " }}>
         <ListItemButton>
           <ListItemIcon>
             <TodayIcon />
@@ -50,7 +51,7 @@ export default function Sidebar() {
                 sx={{
                   background: "#B1D0E0",
                   borderRadius: 5,
-                  color: "36454F",
+                  color: "#36454F",
                   pl: 4,
                   pt: 0,
                   pb: 0,

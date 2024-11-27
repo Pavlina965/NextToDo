@@ -81,6 +81,7 @@ const EditTaskForm: React.FC<EditTaskFormProps> = ({
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
+            format="DD-MM-YYYY"
             value={updatedTask.dueDate ? dayjs(updatedTask.dueDate) : null}
             sx={{ pb: 2 }}
             name="dueDate"
