@@ -144,7 +144,7 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
       <TableCell>{todo.description}</TableCell>
       <TableCell>
         {todo.dueDate
-          ? dayjs.utc(todo.dueDate).local().format("YYYY-MM-DD")
+          ? dayjs(todo.dueDate).local().format("DD/MM/YYYY")
           : "No due date"}
       </TableCell>
       {/* <TableCell>{todo.done ? "Done" : "Not done"}</TableCell> */}
@@ -153,7 +153,7 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
         <Button
           onClick={() => {
             handleOpenModal();
-            console.log(todo);
+            // console.log(todo);
           }}
         >
           Edit

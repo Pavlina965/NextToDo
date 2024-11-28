@@ -6,7 +6,6 @@ import addTask from "../utils/addTask";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-// import CreateProjectForm from "./createProject";
 interface TaskFormProps {
   refreshTasks: () => void;
 }
@@ -24,17 +23,16 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
     }));
   };
   const HandleDateChange = (value: Dayjs | null) => {
+    console.log(value);
     setTask((prevTask) => ({
       ...prevTask,
-      // dueDate: value ? value.utc().toDate() : undefined,
-      dueDate: value ? value.toDate() : undefined,
+      dueDate: value ? dayjs(value).utc().toDate() : undefined,
     }));
-    console.log("set value " + value?.toDate());
   };
 
   const handleSubmit = async () => {
     // event.preventDefault();
-    // console.log(task);
+    // console.log(dayjs(task.dueDate));
     addTask(task).then(() => {
       refreshTasks();
       handleClose();
@@ -43,32 +41,12 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
     // console.log("adding: " + task);
   };
   return (
-    // <>
-    // <Box
-    //   sx={{
-    //     width: "300px",
-    //     position: "absolute",
-    //     top: "30%",
-    //     left: "50%",
-    //     transform: "translate(-50%, -50%)",
-    //   }}
-    // >
     <TableRow>
       {open ? (
         <>
           <TableCell></TableCell>
           <TableCell></TableCell>
-          {/* <FormControl
-          sx={{
-              display: "flex",
-              flexDirection: "column",
-            background: "white",
-            p: 2,
-            borderRadius: "5px",
-          }}
-          component="form"
-          onSubmit={handleSubmit}
-        > */}
+
           <TableCell sx={{ p: 2 }}>
             <TextField
               size="small"
@@ -90,7 +68,6 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 format="DD-MM-YYYY"
-                // value={updatedTask.dueDate ? dayjs(updatedTask.dueDate) : null}
                 name="dueDate"
                 label="select date"
                 onChange={HandleDateChange}

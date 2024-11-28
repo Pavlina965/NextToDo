@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { TaskProps } from '../Components/showTask';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -19,7 +18,7 @@ export async function fetchTasks(dataId?: number|undefined) {
         // const tasksData = await res.json();
         // const tasksWithDueDateUTC = tasksData.map((task: TaskProps) => ({
         //     ...task,
-        // dueDate: task.dueDate ? dayjs.utc(task.dueDate).tz('Europe/Prague').format('YYYY-MM-DD HH:mm:ss') : null,        
+        // dueDate: task.dueDate ? dayjs(task.dueDate).utc().format('YYYY-MM-DD HH:mm:ss') : null,        
         // }))
         // return tasksWithDueDateUTC;
 

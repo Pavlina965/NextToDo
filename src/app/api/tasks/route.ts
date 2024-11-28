@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
 export async function  POST(req: NextRequest) {
   try{
     const data = await req.json();
+const dueDate = new Date(data.dueDate).toISOString();
     if(!data.title){
       return NextResponse.json({ error: "Task title is required" }, { status: 400 });
     }
@@ -38,10 +39,13 @@ export async function  POST(req: NextRequest) {
         description: data.description,
         done: false,
         userId: 0,
-        dueDate: data.dueDate,
+        dueDate: new Date(dueDate),
     },
     });
-    console.log(newTask.dueDate);
+    console.log("Data received by API:", data.dueDate);
+console.log("Converted to Date:", new Date(data.dueDate));
+console.log("Task saved to DB:", newTask.dueDate);
+    // console.log(newTask.dueDate);
     return NextResponse.json(newTask, {status: 201});
   } catch (error) {
     console.error("Error creating task:", error);
