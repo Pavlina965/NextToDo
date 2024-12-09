@@ -1,4 +1,4 @@
-import { TaskProps } from "../Components/showTask";
+import { TaskProps } from "../components/showTask";
 export default async function updateTask(updatedTask: TaskProps) {
     
 try {

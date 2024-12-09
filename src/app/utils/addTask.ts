@@ -1,5 +1,5 @@
 // import dayjs from "dayjs";
-import { TaskProps } from "../Components/showTask";
+import { TaskProps } from "../components/showTask";
 export default async function addTask(task: TaskProps) {
     
 try {
@@ -11,9 +11,7 @@ try {
         },
         body: JSON.stringify(task),
       });
-      console.log("Task being sent:", JSON.stringify(task));
-      // console.log(JSON.stringify(task.dueDate));
-      // console.log(task.dueDate);
+
       if (!res.ok) {
         throw new Error("Failed to add task");
       }

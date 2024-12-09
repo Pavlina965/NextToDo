@@ -23,7 +23,6 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
     }));
   };
   const HandleDateChange = (value: Dayjs | null) => {
-    console.log(value);
     setTask((prevTask) => ({
       ...prevTask,
       dueDate: value ? dayjs(value).utc().toDate() : undefined,
@@ -31,14 +30,10 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
   };
 
   const handleSubmit = async () => {
-    // event.preventDefault();
-    // console.log(dayjs(task.dueDate));
     addTask(task).then(() => {
       refreshTasks();
       handleClose();
     });
-
-    // console.log("adding: " + task);
   };
   return (
     <TableRow>

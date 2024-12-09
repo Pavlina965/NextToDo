@@ -1,4 +1,4 @@
-import { ProjectProps } from "../Components/fetchProjects";
+import { ProjectProps } from "../components/fetchProjects";
   export default async function addProject(task: ProjectProps) {
     
 try {

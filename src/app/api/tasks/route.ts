@@ -1,11 +1,17 @@
 import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const dataId = url.searchParams.get("id");
     
       try {
+        const session = await getServerSession({secret:process.env.NEXTAUTH_SECRET});
+        if (!session) {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        
     if (dataId) {
       const task = await prisma.task.findUnique({
         where: { id: parseInt(dataId) },
@@ -15,8 +21,17 @@ export async function GET(req: NextRequest) {
       }
       return NextResponse.json(task, { status: 200 });
     } else {
-      const tasks = await prisma.task.findMany();
-      return NextResponse.json(tasks, { status: 200 });
+      if(session.user){
+
+        const tasks = await prisma.task.findMany({
+          where: { userId: parseInt(session.user.id) },
+        });
+        
+        return NextResponse.json(tasks, { status: 200 });
+      }
+      else{
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+}
     }
   } catch (error) {
     console.error("Error fetching tasks:", error);

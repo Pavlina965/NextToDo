@@ -5,15 +5,18 @@ import {
   Box,
   Button,
   Checkbox,
+  Container,
   Modal,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import CreateTaskForm from "./createTask";
 import EditTaskForm from "./editTask";
@@ -23,6 +26,8 @@ import updateTask from "../utils/updateTask";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -41,15 +46,16 @@ export interface TaskProps {
   dueDate?: Date;
 }
 
-const ShowTaks: React.FC = () => {
-  const [tasks, setTasks] = useState<TaskProps[]>([]);
-  const [editTask, setEditTask] = useState<TaskProps | null>(null);
+const ShowTask: React.FC = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
 
+  // const [editTask, setEditTask] = useState<TaskProps | null>(null);
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
   const loadTasks = async () => {
     try {
       const data = await fetchTasks();
       setTasks(data);
-      console.log(data);
     } catch (error) {
       console.error("Error loading tasks:", error);
     }
@@ -69,46 +75,65 @@ const ShowTaks: React.FC = () => {
   }
   return (
     <>
-      <Box sx={{ boxShadow: 3 }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>id</TableCell>
-                <TableCell>Task name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Due date</TableCell>
-                {/* <TableCell>Status</TableCell> */}
-                <TableCell>Priority</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <CreateTaskForm refreshTasks={() => loadTasks()} />
+      {session ? (
+        <Box sx={{ boxShadow: 3 }}>
+          <p></p>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell>id</TableCell>
+                  <TableCell>Task name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Due date</TableCell>
+                  {/* <TableCell>Status</TableCell> */}
+                  <TableCell>Priority</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <CreateTaskForm refreshTasks={() => loadTasks()} />
+                {/* <TaskList tasks={tasks} setTasks={setTasks} /> */}
+                {tasks.map((task) => (
+                  <Task
+                    key={task.id}
+                    todo={task}
+                    onDelete={HandleDeleteTask}
+                    setTasks={setTasks}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      ) : (
+        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 10 }}>
+          <Typography variant="h3" gutterBottom>
+            Vítejte v aplikaci!
+          </Typography>
+          <Typography variant="h6" paragraph>
+            Přihlaste se nebo si vytvořte účet a začněte spravovat své úkoly.
+          </Typography>
 
-              {tasks.map((task) => (
-                <Task
-                  key={task.id}
-                  todo={task}
-                  onDelete={HandleDeleteTask}
-                  setTasks={setTasks}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* <List>
-        {tasks.map((task) => (
-          <Task
-            key={task.id}
-            todo={task}
-            onDelete={HandleDeleteTask}
-            setTasks={setTasks}
-          />
-        ))}
-      </List> */}
-      </Box>
+          <Stack spacing={2} direction="column" alignItems="center">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => signIn()}
+            >
+              Přihlásit se
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => router.push("/auth/register")}
+            >
+              Registrovat se
+            </Button>
+          </Stack>
+        </Container>
+      )}
     </>
   );
 };
@@ -169,29 +194,5 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
       </TableCell>
     </TableRow>
   );
-  // <ListItem>
-  //   <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
-  //   <ListItemText
-  //     primary={todo.title}
-  //     sx={{ textDecoration: todo.done ? "line-through" : "none" }}
-  //   />
-  //   <Button
-  //     onClick={() => {
-  //       handleOpenModal();
-  //     }}
-  //   >
-  //     Edit
-  //   </Button>
-
-  //   <Modal open={isEditing} onClose={handleCloseModal}>
-  //     <EditTaskForm
-  //       task={todo}
-  //       onClose={handleCloseModal}
-  //       refreshTasks={refreshTasks}
-  //     />
-  //   </Modal>
-
-  //   <Button onClick={() => onDelete(todo.id)}>Delete</Button>
-  // </ListItem>
 };
-export default ShowTaks;
+export default ShowTask;

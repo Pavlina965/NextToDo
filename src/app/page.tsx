@@ -1,20 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Box, Container } from "@mui/material";
-import ShowTaks from "./Components/showTask";
+import ShowTask from "./components/showTask";
 
-import Sidebar from "./Components/sidebar";
-import { Suspense } from "react";
+import Sidebar from "./components/sidebar";
+import Register from "./auth/register/page";
+import Navbar from "./components/Navbar";
+
 const Home = () => {
   return (
-    <Box sx={{ display: "flex" }}>
-      <Sidebar />
-      <Container>
-        <h1>Todolist</h1>
-        <Suspense>
-          <ShowTaks />
-        </Suspense>
-      </Container>
-    </Box>
+    <>
+      <Navbar />
+      <Box sx={{ display: "flex", height: "calc(100vh - 64px)" }}>
+        <Box sx={{ width: "250px", height: "100vh" }}>
+          <Sidebar />
+        </Box>
+        <Box sx={{ flexGrow: 1, padding: 2 }}>
+          <ShowTask />
+        </Box>
+      </Box>
+    </>
   );
 };
 export default Home;
