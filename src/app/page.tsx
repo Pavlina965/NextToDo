@@ -3,7 +3,6 @@ import { Box, Container } from "@mui/material";
 import ShowTask from "./components/showTask";
 
 import Sidebar from "./components/sidebar";
-import Register from "./auth/register/page";
 import Navbar from "./components/Navbar";
 
 const Home = () => {
