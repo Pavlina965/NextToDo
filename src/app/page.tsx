@@ -2,12 +2,10 @@
 import { Box, Container } from "@mui/material";
 import ShowTask from "./components/showTask";
 import Sidebar from "./components/sidebar";
-import Navbar from "./components/Navbar";
 
 const Home = () => {
   return (
     <>
-      <Navbar />
       <Box sx={{ display: "flex", height: "calc(100vh - 64px)" }}>
         <Box sx={{ width: "250px", height: "100vh" }}>
           <Sidebar />
