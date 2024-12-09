@@ -52,7 +52,8 @@ export async function  POST(req: NextRequest) {
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
     const data = await req.json();
-    const dueDate = new Date(data.dueDate).toISOString();
+    const dueDate = data.DueDate? new Date(data.DueDate):null;
+    // new Date(data.dueDate).toISOString();
     if(!data.title){
       return NextResponse.json({ error: "Task title is required" }, { status: 400 });
     }
@@ -63,7 +64,7 @@ export async function  POST(req: NextRequest) {
         description: data.description,
         done: false,
         userId: user.id,
-        dueDate: data.DueDate? new Date(dueDate):null,
+        dueDate: dueDate
     },
     
     });
