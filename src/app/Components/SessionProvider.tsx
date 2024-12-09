@@ -1,5 +1,4 @@
-"use client"; // Přidej tento řádek na začátek souboru
-
+"use client";
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 
