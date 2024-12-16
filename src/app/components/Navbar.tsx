@@ -17,16 +17,12 @@ export default function Navbar() {
           <Button color="inherit" href="/">
             Home
           </Button>
-          <Button color="inherit" href="/about">
-            About
-          </Button>
-          <Button color="inherit" href="/contact">
-            Contact
-          </Button>
 
           {session ? (
             <>
-              <p>Přihlášený jako {session.user?.email}</p>
+              <Typography variant="body1" sx={{ color: "white" }}>
+                Přihlášený jako {session.user?.email}
+              </Typography>
               <Button color="inherit" onClick={() => signOut()}>
                 Odhlásit se
               </Button>

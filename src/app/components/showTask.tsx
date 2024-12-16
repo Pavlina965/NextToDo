@@ -4,6 +4,8 @@
 import {
   Box,
   Button,
+  Card,
+  CardContent,
   Checkbox,
   Container,
   Modal,
@@ -15,6 +17,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import React from "react";
@@ -26,8 +29,9 @@ import updateTask from "../utils/updateTask";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import NotLoginPrompt from "./NotLogin";
+import { todo } from "node:test";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,6 +40,7 @@ export interface TodoProps {
   todo: TaskProps;
   onDelete: (todoId: number | undefined) => void;
   setTasks: React.Dispatch<React.SetStateAction<TaskProps[]>>;
+  isMobile: boolean;
 }
 export interface TaskProps {
   // localDate: string;
@@ -48,10 +53,11 @@ export interface TaskProps {
 
 const ShowTask: React.FC = () => {
   const { data: session } = useSession();
-  const router = useRouter();
 
   // const [editTask, setEditTask] = useState<TaskProps | null>(null);
   const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const isMobile = useMediaQuery("(max-width: 600px)");
+
   const loadTasks = async () => {
     try {
       const data = await fetchTasks();
@@ -75,20 +81,27 @@ const ShowTask: React.FC = () => {
   }
   return (
     <>
-      {session ? (
+      {!session ? (
+        <NotLoginPrompt />
+      ) : (
         <Box sx={{ boxShadow: 3 }}>
-          <p></p>
-          <TableContainer>
+          <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell></TableCell>
-                  <TableCell>id</TableCell>
+                  {/* <TableCell>id</TableCell> */}
                   <TableCell>Task name</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Due date</TableCell>
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    Description
+                  </TableCell>
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    Due date
+                  </TableCell>
                   {/* <TableCell>Status</TableCell> */}
-                  <TableCell>Priority</TableCell>
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    Priority
+                  </TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
@@ -101,43 +114,18 @@ const ShowTask: React.FC = () => {
                     todo={task}
                     onDelete={HandleDeleteTask}
                     setTasks={setTasks}
+                    isMobile={isMobile}
                   />
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Box>
-      ) : (
-        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 10 }}>
-          <Typography variant="h3" gutterBottom>
-            Vítejte v aplikaci!
-          </Typography>
-          <Typography variant="h6" paragraph>
-            Přihlaste se nebo si vytvořte účet a začněte spravovat své úkoly.
-          </Typography>
-
-          <Stack spacing={2} direction="column" alignItems="center">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => signIn()}
-            >
-              Přihlásit se
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => router.push("/auth/register")}
-            >
-              Registrovat se
-            </Button>
-          </Stack>
-        </Container>
       )}
     </>
   );
 };
-const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
+const Task = ({ todo, onDelete, setTasks, isMobile }: TodoProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const handleOpenModal = () => setIsEditing(true);
   const handleCloseModal = () => {
@@ -164,21 +152,24 @@ const Task = ({ todo, onDelete, setTasks }: TodoProps) => {
       <TableCell>
         <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
       </TableCell>
-      <TableCell>{todo.id}</TableCell>
-      <TableCell>{todo.title}</TableCell>
-      <TableCell>{todo.description}</TableCell>
-      <TableCell>
+      {/* <TableCell>{todo.id}</TableCell> */}
+      <TableCell sx={{ minWidth: "150px" }}>{todo.title}</TableCell>
+      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+        {todo.description}
+      </TableCell>
+      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
         {todo.dueDate
           ? dayjs(todo.dueDate).local().format("DD/MM/YYYY")
           : "No due date"}
       </TableCell>
       {/* <TableCell>{todo.done ? "Done" : "Not done"}</TableCell> */}
-      <TableCell>Priority will be there</TableCell>
+      <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+        Priority will be there
+      </TableCell>
       <TableCell>
         <Button
           onClick={() => {
             handleOpenModal();
-            // console.log(todo);
           }}
         >
           Edit
