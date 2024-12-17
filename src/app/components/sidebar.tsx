@@ -1,6 +1,7 @@
 "use client";
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   Collapse,
@@ -12,8 +13,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
   SwipeableDrawer,
   Toolbar,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -32,11 +36,15 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   const [openProjectsList, setOpenProjectsList] = React.useState(true);
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [openDrawer, setOpenDrawer] = React.useState(isMobile ? false : true);
+  const [openUserMenu, setOpenUserMenu] = React.useState(false);
   const handleClick = () => {
     setOpenProjectsList(!openProjectsList);
   };
   const handleDrawerToggle = () => {
     setOpenDrawer(!openDrawer);
+  };
+  const handleUserMenu = () => {
+    setOpenUserMenu(!openUserMenu);
   };
   const { data: session } = useSession();
 
@@ -203,7 +211,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
             transition: "width 0.3s ease",
           }}
         >
-          <Toolbar>
+          <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
             {!openDrawer && (
               <IconButton
                 color="inherit"
@@ -216,19 +224,40 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               </IconButton>
             )}
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
               <Button color="inherit" href="/">
                 Home
               </Button>
               {session ? (
-                <>
-                  <Typography variant="body1" sx={{ color: "white" }}>
-                    Přihlášený jako {session.user?.email}
-                  </Typography>
-                  <Button color="inherit" onClick={() => signOut()}>
-                    Odhlásit se
-                  </Button>
-                </>
+                <Box sx={{ flexGrow: 0 }}>
+                  <Tooltip title={session.user?.email}>
+                    <IconButton onClick={handleUserMenu} sx={{ p: 0 }}>
+                      <Avatar />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    sx={{ mt: "45px" }}
+                    id="menu-appbar"
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={openUserMenu}
+                    onClose={handleUserMenu}
+                  >
+                    <MenuItem onClick={handleUserMenu}>
+                      <Typography sx={{ textAlign: "center" }}>
+                        {session.user?.email}
+                      </Typography>
+                    </MenuItem>
+                    <MenuItem onClick={() => signOut()}>Odhlásit se</MenuItem>
+                  </Menu>
+                </Box>
               ) : (
                 <Button color="inherit" onClick={() => signIn()}>
                   Přihlásit se
