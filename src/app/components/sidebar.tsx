@@ -189,7 +189,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         sx={{
           flexGrow: 1,
           transition: "margin-left 0.3s ease",
-          marginLeft: openDrawer && !isMobile ? 0 : `-${drawerWidth}px`,
+          marginLeft: openDrawer || isMobile ? 0 : `-${drawerWidth}px`,
         }}
       >
         <AppBar

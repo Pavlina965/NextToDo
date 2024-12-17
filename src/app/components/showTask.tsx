@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CardActions,
   CardContent,
   Checkbox,
   Container,
@@ -19,7 +20,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import React from "react";
 import CreateTaskForm from "./createTask";
 import EditTaskForm from "./editTask";
@@ -81,47 +82,68 @@ const ShowTask: React.FC = () => {
   }
   return (
     <>
-      {!session ? (
-        <NotLoginPrompt />
-      ) : (
-        <Box sx={{ boxShadow: 3 }}>
-          <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell>
-                  {/* <TableCell>id</TableCell> */}
-                  <TableCell>Task name</TableCell>
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                    Description
-                  </TableCell>
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                    Due date
-                  </TableCell>
-                  {/* <TableCell>Status</TableCell> */}
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                    Priority
-                  </TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <CreateTaskForm refreshTasks={() => loadTasks()} />
-                {/* <TaskList tasks={tasks} setTasks={setTasks} /> */}
-                {tasks.map((task) => (
-                  <Task
-                    key={task.id}
-                    todo={task}
-                    onDelete={HandleDeleteTask}
-                    setTasks={setTasks}
-                    isMobile={isMobile}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-      )}
+      {/* {!session && <NotLoginPrompt />} */}
+      {session &&
+        (!isMobile ? (
+          <Box sx={{ boxShadow: 3 }}>
+            <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell></TableCell>
+                    {/* <TableCell>id</TableCell> */}
+                    <TableCell>Task name</TableCell>
+                    <TableCell
+                      sx={{ display: { xs: "none", md: "table-cell" } }}
+                    >
+                      Description
+                    </TableCell>
+                    <TableCell
+                      sx={{ display: { xs: "none", md: "table-cell" } }}
+                    >
+                      Due date
+                    </TableCell>
+                    {/* <TableCell>Status</TableCell> */}
+                    <TableCell
+                      sx={{ display: { xs: "none", md: "table-cell" } }}
+                    >
+                      Priority
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <CreateTaskForm refreshTasks={() => loadTasks()} />
+                  {/* <TaskList tasks={tasks} setTasks={setTasks} /> */}
+                  {tasks.map((task) => (
+                    <Task
+                      key={task.id}
+                      todo={task}
+                      onDelete={HandleDeleteTask}
+                      setTasks={setTasks}
+                      isMobile={isMobile}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        ) : (
+          <Box sx={{ padding: 0, margin: 0 }}>
+            <CreateTaskForm refreshTasks={loadTasks} />
+            <Stack spacing={2}>
+              {tasks.map((task) => (
+                <Task
+                  key={task.id}
+                  todo={task}
+                  onDelete={HandleDeleteTask}
+                  setTasks={setTasks}
+                  isMobile={isMobile}
+                />
+              ))}
+            </Stack>
+          </Box>
+        ))}
     </>
   );
 };
@@ -147,7 +169,7 @@ const Task = ({ todo, onDelete, setTasks, isMobile }: TodoProps) => {
     });
   };
 
-  return (
+  return !isMobile ? (
     <TableRow sx={{ background: todo.done ? "#C3E6CB" : "none" }}>
       <TableCell>
         <Checkbox checked={todo.done} onChange={handleCheckboxChange} />
@@ -184,6 +206,72 @@ const Task = ({ todo, onDelete, setTasks, isMobile }: TodoProps) => {
         <Button onClick={() => onDelete(todo.id)}>Delete</Button>
       </TableCell>
     </TableRow>
+  ) : (
+    <Card
+      sx={{
+        backgroundColor: todo.done ? "#C3E6CB" : "white",
+        boxShadow: 3,
+        borderRadius: 2,
+        width: "100%",
+        marginX: "0", // Remove horizontal margins
+        padding: 1,
+        boxSizing: "border-box", // Ensure padding is included in width calculations
+      }}
+    >
+      <CardContent>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Checkbox
+            checked={todo.done}
+            onChange={(e) => handleCheckboxChange(e, e.target.checked)}
+          />
+          <Box sx={{ width: "100%" }}>
+            <Typography variant="h6" sx={{ wordWrap: "break-word" }}>
+              {todo.title}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ wordWrap: "break-word" }}
+            >
+              {todo.description || "No description"}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ marginTop: 1 }}
+            >
+              {todo.dueDate
+                ? `Due: ${dayjs(todo.dueDate).format("DD/MM/YYYY")}`
+                : "No due date"}
+            </Typography>
+          </Box>
+        </Stack>
+      </CardContent>
+      <CardActions sx={{ justifyContent: "flex-end" }}>
+        <Button
+          size="small"
+          onClick={() => setIsEditing(true)}
+          variant="contained"
+        >
+          Edit
+        </Button>
+        <Button
+          size="small"
+          color="error"
+          onClick={() => onDelete(todo.id)}
+          variant="contained"
+        >
+          Delete
+        </Button>
+      </CardActions>
+      <Modal open={isEditing} onClose={() => setIsEditing(false)}>
+        <EditTaskForm
+          task={todo}
+          onClose={() => setIsEditing(false)}
+          refreshTasks={refreshTasks}
+        />
+      </Modal>
+    </Card>
   );
 };
 export default ShowTask;

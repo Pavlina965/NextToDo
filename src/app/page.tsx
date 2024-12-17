@@ -2,8 +2,13 @@
 import { Box, Container } from "@mui/material";
 import ShowTask from "./components/showTask";
 import Sidebar from "./components/sidebar";
+import AuthGuard from "./components/authGuard";
 
 const Home = () => {
-  return <ShowTask />;
+  return (
+    <AuthGuard>
+      <ShowTask />;
+    </AuthGuard>
+  );
 };
 export default Home;

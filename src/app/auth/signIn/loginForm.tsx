@@ -42,7 +42,7 @@ export default function LoginForm() {
         p: 3,
         boxShadow: 3,
         borderRadius: 2,
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "#ffffff",
       }}
     >
       <Typography variant="h5" mb={3} textAlign="center">
