@@ -1,9 +1,7 @@
-// import dayjs from "dayjs";
 import { TaskProps } from "../components/showTask";
 export default async function addTask(task: TaskProps) {
     
 try {
-
       const res = await fetch(`/api/tasks`, {
         method: "POST",
         headers: {

@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { use, useEffect, useState } from "react";
 import React from "react";
-import CreateTaskForm from "./createTask";
+import CreateTaskForm from "./createTaskForm";
 import EditTaskForm from "./editTask";
 import { fetchTasks } from "../utils/fetchTasks";
 import { deleteTask } from "../utils/deleteTask";
@@ -114,7 +114,6 @@ const ShowTask: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   <CreateTaskForm refreshTasks={() => loadTasks()} />
-                  {/* <TaskList tasks={tasks} setTasks={setTasks} /> */}
                   {tasks.map((task) => (
                     <Task
                       key={task.id}
@@ -213,9 +212,9 @@ const Task = ({ todo, onDelete, setTasks, isMobile }: TodoProps) => {
         boxShadow: 3,
         borderRadius: 2,
         width: "100%",
-        marginX: "0", // Remove horizontal margins
+        marginX: "0",
         padding: 1,
-        boxSizing: "border-box", // Ensure padding is included in width calculations
+        boxSizing: "border-box",
       }}
     >
       <CardContent>

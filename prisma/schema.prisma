@@ -49,8 +49,8 @@ model Reccuring_task {
 model Project {
   id            Int            @id @default(autoincrement())
   title         String         @db.VarChar(255)
-  description   String
-  creation_date DateTime
+  description   String?
+  creation_date DateTime?
   tasks         Task[]
   users         User_Project[]
 }
@@ -85,10 +85,10 @@ model Task_Tag {
 model User_Project {
   user_id     Int
   project_id  Int
-  role_id     Int
-  permissions String
+  role_id     Int?
+  permissions String?
   project     Project @relation(fields: [project_id], references: [id])
-  role        Role    @relation(fields: [role_id], references: [id])
+  role        Role?    @relation(fields: [role_id], references: [id])
   user        User    @relation(fields: [user_id], references: [id])
 
   @@id([user_id, project_id])

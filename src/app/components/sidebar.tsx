@@ -4,15 +4,9 @@ import {
   Avatar,
   Box,
   Button,
-  Collapse,
   CssBaseline,
   Drawer,
   IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Menu,
   MenuItem,
   SwipeableDrawer,
@@ -23,23 +17,18 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import FetchProjects from "./fetchProjects";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import TodayIcon from "@mui/icons-material/Today";
-import AddIcon from "@mui/icons-material/Add";
+import { ExpandLess } from "@mui/icons-material";
+
 import React from "react";
 import { useSession, signOut, signIn } from "next-auth/react";
+import ProjectsList from "./projectsList";
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
   const drawerWidth = 260;
-  const projects = FetchProjects();
-  const [openProjectsList, setOpenProjectsList] = React.useState(true);
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [openDrawer, setOpenDrawer] = React.useState(isMobile ? false : true);
   const [openUserMenu, setOpenUserMenu] = React.useState(false);
-  const handleClick = () => {
-    setOpenProjectsList(!openProjectsList);
-  };
+
   const handleDrawerToggle = () => {
     setOpenDrawer(!openDrawer);
   };
@@ -84,47 +73,8 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <ChevronLeftIcon sx={{ color: "white" }} />
             </IconButton>
           </Box>
-          <List sx={{ color: "#E0E6EB " }}>
-            <ListItemButton>
-              <ListItemIcon>
-                <TodayIcon />
-              </ListItemIcon>
-              <ListItemText primary="Today" />
-            </ListItemButton>
-            <ListItemButton onClick={handleClick}>
-              <ListItemText primary="Projects" />
-              {openProjectsList ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={openProjectsList} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem sx={{}}>
-                  <ListItemButton
-                    sx={{
-                      background: "#B1D0E0",
-                      borderRadius: 5,
-                      color: "#36454F",
-                      pl: 4,
-                      pt: 0,
-                      pb: 0,
-                      ":hover": { background: "#A1B9C8" },
-                    }}
-                  >
-                    <ListItemText primary="Add Project"></ListItemText>
-                    <ListItemIcon>
-                      <AddIcon />
-                    </ListItemIcon>
-                  </ListItemButton>
-                </ListItem>
-                {projects.map((project) => (
-                  <ListItem key={project.id}>
-                    <ListItemButton sx={{ pl: 4 }}>
-                      <ListItemText primary={project.title}></ListItemText>
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
-            </Collapse>
-          </List>
+          <ProjectsList />
+
           {/* </Box> */}
         </Drawer>
       ) : (
@@ -147,49 +97,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <ExpandLess sx={{ color: "white" }} />
             </IconButton>
           </Box>
-
-          <List sx={{ color: "#E0E6EB" }}>
-            <ListItemButton>
-              <ListItemIcon>
-                <TodayIcon />
-              </ListItemIcon>
-              <ListItemText primary="Today" />
-            </ListItemButton>
-
-            <ListItemButton onClick={handleClick}>
-              <ListItemText primary="Projects" />
-              {openProjectsList ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-
-            <Collapse in={openProjectsList} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItem>
-                  <ListItemButton
-                    sx={{
-                      background: "#B1D0E0",
-                      borderRadius: 5,
-                      color: "#36454F",
-                      pl: 4,
-                      ":hover": { background: "#A1B9C8" },
-                    }}
-                  >
-                    <ListItemText primary="Add Project" />
-                    <ListItemIcon>
-                      <AddIcon />
-                    </ListItemIcon>
-                  </ListItemButton>
-                </ListItem>
-
-                {projects.map((project) => (
-                  <ListItem key={project.id}>
-                    <ListItemButton sx={{ pl: 4 }}>
-                      <ListItemText primary={project.title} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
-            </Collapse>
-          </List>
+          <ProjectsList />
         </SwipeableDrawer>
       )}
 

@@ -1,5 +1,5 @@
 import { ProjectProps } from "../components/fetchProjects";
-  export default async function addProject(task: ProjectProps) {
+  export default async function addProject(project: ProjectProps) {
     
 try {
       const res = await fetch(`/api/projects`, {
@@ -7,13 +7,13 @@ try {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(task),
+        body: JSON.stringify(project),
       });
       if (!res.ok) {
-        throw new Error("Failed to update task");
+        throw new Error("Failed to add project");
       }
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error("Error adding project:", error);
     }
-    console.log(task);
+    console.log(project);
   };

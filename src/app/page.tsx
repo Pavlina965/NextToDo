@@ -7,7 +7,7 @@ import AuthGuard from "./components/authGuard";
 const Home = () => {
   return (
     <AuthGuard>
-      <ShowTask />;
+      <ShowTask />
     </AuthGuard>
   );
 };

@@ -8,11 +8,9 @@ import NotLoginPrompt from "./NotLogin";
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: session, status } = useSession();
-  //   const router = useRouter();
 
   if (status === "unauthenticated") {
     return <NotLoginPrompt />;
-    //   router.push("/login");
   }
 
   if (status === "loading") {
