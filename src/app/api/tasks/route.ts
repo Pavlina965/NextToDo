@@ -4,8 +4,8 @@ import { getServerSession } from "next-auth";
 
 export async function GET(req: NextRequest) {
 const url = new URL(req.url, process.env.NEXTAUTH_URL || "http://localhost:3000");
-  const dataId = url.searchParams.get("id");
-    
+  const projectId = url.searchParams.get("projectId");
+    console.log(projectId);
       try {
         const session = await getServerSession({secret:process.env.NEXTAUTH_SECRET});
         if (!session || !session.user?.email) {
@@ -17,17 +17,17 @@ const url = new URL(req.url, process.env.NEXTAUTH_URL || "http://localhost:3000"
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        if (dataId) {
-          const task = await prisma.task.findUnique({
-        where: { id: parseInt(dataId),
-          userId: user?.id,
-         },
-      });
-      if (!task) {
-        return NextResponse.json({ error: "Task not found" }, { status: 404 });
-      }
-      return NextResponse.json(task, { status: 200 });
-    } 
+    //     if (dataId) {
+    //       const task = await prisma.task.findUnique({
+    //     where: { id: parseInt(dataId),
+    //       userId: user?.id,
+    //      },
+    //   });
+    //   if (!task) {
+    //     return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    //   }
+    //   return NextResponse.json(task, { status: 200 });
+    // } 
     const tasks = await prisma.task.findMany({
       where: { userId: user?.id },
     })

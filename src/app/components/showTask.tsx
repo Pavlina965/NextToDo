@@ -8,7 +8,6 @@ import {
   CardActions,
   CardContent,
   Checkbox,
-  Container,
   Modal,
   Stack,
   Table,
@@ -20,7 +19,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import CreateTaskForm from "./createTaskForm";
 import EditTaskForm from "./editTask";
@@ -31,8 +30,6 @@ import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
-import NotLoginPrompt from "./NotLogin";
-import { todo } from "node:test";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,7 +49,9 @@ export interface TaskProps {
   dueDate?: Date;
 }
 
-const ShowTask: React.FC = () => {
+const ShowTask: React.FC<{ projectId?: number | undefined }> = ({
+  projectId,
+}) => {
   const { data: session } = useSession();
 
   // const [editTask, setEditTask] = useState<TaskProps | null>(null);
@@ -61,6 +60,11 @@ const ShowTask: React.FC = () => {
 
   const loadTasks = async () => {
     try {
+      if (projectId) {
+        console.log(projectId);
+        // const data = await fetchTasks(projectId);
+        // setTasks(data);
+      }
       const data = await fetchTasks();
       setTasks(data);
     } catch (error) {
@@ -78,11 +82,9 @@ const ShowTask: React.FC = () => {
     } else {
       console.error("Task ID is undefined");
     }
-    // await refetchTasks();
   }
   return (
     <>
-      {/* {!session && <NotLoginPrompt />} */}
       {session &&
         (!isMobile ? (
           <Box sx={{ boxShadow: 3 }}>
@@ -103,7 +105,6 @@ const ShowTask: React.FC = () => {
                     >
                       Due date
                     </TableCell>
-                    {/* <TableCell>Status</TableCell> */}
                     <TableCell
                       sx={{ display: { xs: "none", md: "table-cell" } }}
                     >

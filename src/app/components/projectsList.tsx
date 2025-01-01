@@ -13,6 +13,7 @@ import {
 import TodayIcon from "@mui/icons-material/Today";
 import AddProjectButton from "./addProjectButton";
 import { fetchAllProjects } from "../utils/fetchAllProjects";
+import ShowTask from "./showTask";
 
 export interface ProjectProps {
   id?: number;
@@ -22,6 +23,9 @@ export interface ProjectProps {
 const ProjectsList = () => {
   const [openProjectsList, setOpenProjectsList] = React.useState(true);
   const [projects, setProjects] = React.useState<ProjectProps[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = React.useState<
+    number | null
+  >(null);
 
   const loadProjects = async () => {
     try {
@@ -38,45 +42,53 @@ const ProjectsList = () => {
   const handleClick = () => {
     setOpenProjectsList(!openProjectsList);
   };
+  const handleProjectSelect = (projectId: number | null) => {
+    setSelectedProjectId(projectId);
+  };
   return (
-    <List sx={{ color: "#E0E6EB " }}>
-      <ListItemButton>
-        <ListItemIcon>
-          <TodayIcon />
-        </ListItemIcon>
-        <ListItemText primary="Today" />
-      </ListItemButton>
-      <ListItemButton onClick={handleClick}>
-        <ListItemText primary="Projects" />
-        {openProjectsList ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-      <Collapse in={openProjectsList} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItem sx={{}}>
-            <ListItemButton
-              sx={{
-                background: "#B1D0E0",
-                borderRadius: 5,
-                color: "#36454F",
-                pl: 4,
-                pt: 0,
-                pb: 0,
-                ":hover": { background: "#A1B9C8" },
-              }}
-            >
-              <AddProjectButton refreshProjects={loadProjects} />
-            </ListItemButton>
-          </ListItem>
-          {projects.map((project) => (
-            <ListItem key={project.id}>
-              <ListItemButton sx={{ pl: 4 }}>
-                <ListItemText primary={project.title}></ListItemText>
+    <div>
+      <List sx={{ color: "#E0E6EB " }}>
+        <ListItemButton>
+          <ListItemIcon>
+            <TodayIcon />
+          </ListItemIcon>
+          <ListItemText primary="Today" />
+        </ListItemButton>
+        <ListItemButton onClick={handleClick}>
+          <ListItemText primary="Projects" />
+          {openProjectsList ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openProjectsList} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItem sx={{}}>
+              <ListItemButton
+                sx={{
+                  background: "#B1D0E0",
+                  borderRadius: 5,
+                  color: "#36454F",
+                  pl: 4,
+                  pt: 0,
+                  pb: 0,
+                  ":hover": { background: "#A1B9C8" },
+                }}
+              >
+                <AddProjectButton refreshProjects={loadProjects} />
               </ListItemButton>
             </ListItem>
-          ))}
-        </List>
-      </Collapse>
-    </List>
+            {projects.map((project) => (
+              <ListItem key={project.id}>
+                <ListItemButton
+                  onClick={() => handleProjectSelect(project.id ?? null)}
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemText primary={project.title}></ListItemText>
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Collapse>
+      </List>
+    </div>
   );
 };
 
