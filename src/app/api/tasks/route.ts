@@ -1,11 +1,13 @@
 import prisma from "../../../../lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import dayjs from "dayjs";
 
 export async function GET(req: NextRequest) {
-const url = new URL(req.url, process.env.NEXTAUTH_URL || "http://localhost:3000");
-  const projectId = url.searchParams.get("projectId");
-    console.log(projectId);
+  const url = new URL(req.url , process.env.NEXTAUTH_URL || "http://localhost:3000");
+  const projectId = url.searchParams.get("id") || url.searchParams.get("projectId");
+  const isUnassigned = Boolean(url.searchParams.get("unassigned"));
+  const showToday = Boolean(url.searchParams.get("showToday"));
       try {
         const session = await getServerSession({secret:process.env.NEXTAUTH_SECRET});
         if (!session || !session.user?.email) {
@@ -17,29 +19,33 @@ const url = new URL(req.url, process.env.NEXTAUTH_URL || "http://localhost:3000"
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-    //     if (dataId) {
-    //       const task = await prisma.task.findUnique({
-    //     where: { id: parseInt(dataId),
-    //       userId: user?.id,
-    //      },
-    //   });
-    //   if (!task) {
-    //     return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    //   }
-    //   return NextResponse.json(task, { status: 200 });
-    // } 
-    const tasks = await prisma.task.findMany({
-      where: { userId: user?.id },
-    })
-    console.log("User ID:", user.id);
-    console.log("Tasks:", tasks);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter:any ={userId: user.id};
+    if(projectId && !isNaN(parseInt(projectId))){
+      filter.projectId = parseInt(projectId);
+    }
+     else if(isUnassigned){
+      filter.projectId = { equals: null };
+     }
+     else if(showToday){
+  const todayStart = dayjs().startOf("day").toDate(); // 00:00:00
+  const todayEnd = dayjs().endOf("day").toDate(); // 23:59:59
+  filter.dueDate = {
+    gte: todayStart, // Greater than or equal to 00:00:00
+    lte: todayEnd,   // Less than or equal to 23:59:59
+  };
+  console.log(filter);
+}
+
+     const tasks = await prisma.task.findMany({where: filter});
+
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
     console.error("Error fetching tasks:", error);
     return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
   }
 }
-
 export async function  POST(req: NextRequest) {
 
   try{
@@ -52,7 +58,8 @@ export async function  POST(req: NextRequest) {
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
     const data = await req.json();
-    const dueDate = data.DueDate? new Date(data.DueDate):null;
+    const dueDate = data.dueDate? new Date(data.dueDate):null;
+
     // new Date(data.dueDate).toISOString();
     if(!data.title){
       return NextResponse.json({ error: "Task title is required" }, { status: 400 });
@@ -64,7 +71,8 @@ export async function  POST(req: NextRequest) {
         description: data.description,
         done: false,
         userId: user.id,
-        dueDate: dueDate
+        dueDate: dueDate,
+        projectId: data.projectId? parseInt(data.projectId):null
     },
     
     });

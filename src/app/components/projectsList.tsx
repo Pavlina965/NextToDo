@@ -13,19 +13,23 @@ import {
 import TodayIcon from "@mui/icons-material/Today";
 import AddProjectButton from "./addProjectButton";
 import { fetchAllProjects } from "../utils/fetchAllProjects";
-import ShowTask from "./showTask";
 
 export interface ProjectProps {
-  id?: number;
+  id: number;
   title?: string;
   desc?: string;
 }
-const ProjectsList = () => {
+interface ProjectsListProps {
+  onSelectProject: (
+    projectId: number | null,
+    isUnassigned?: boolean,
+    showToday?: boolean
+  ) => void;
+}
+
+const ProjectsList: React.FC<ProjectsListProps> = ({ onSelectProject }) => {
   const [openProjectsList, setOpenProjectsList] = React.useState(true);
   const [projects, setProjects] = React.useState<ProjectProps[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = React.useState<
-    number | null
-  >(null);
 
   const loadProjects = async () => {
     try {
@@ -39,22 +43,26 @@ const ProjectsList = () => {
     loadProjects();
   }, []);
 
-  const handleClick = () => {
+  const handleProjectListOpen = () => {
     setOpenProjectsList(!openProjectsList);
   };
-  const handleProjectSelect = (projectId: number | null) => {
-    setSelectedProjectId(projectId);
-  };
+
   return (
-    <div>
+    <>
       <List sx={{ color: "#E0E6EB " }}>
-        <ListItemButton>
+        <ListItemButton onClick={() => onSelectProject(null, false, true)}>
           <ListItemIcon>
             <TodayIcon />
           </ListItemIcon>
           <ListItemText primary="Today" />
         </ListItemButton>
-        <ListItemButton onClick={handleClick}>
+        <ListItemButton onClick={() => onSelectProject(null, true)}>
+          <ListItemText primary="Unassigned" />
+        </ListItemButton>
+        <ListItemButton onClick={() => onSelectProject(null)}>
+          <ListItemText primary="All projects" />
+        </ListItemButton>
+        <ListItemButton onClick={handleProjectListOpen}>
           <ListItemText primary="Projects" />
           {openProjectsList ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
@@ -78,7 +86,7 @@ const ProjectsList = () => {
             {projects.map((project) => (
               <ListItem key={project.id}>
                 <ListItemButton
-                  onClick={() => handleProjectSelect(project.id ?? null)}
+                  onClick={() => onSelectProject(project.id)}
                   sx={{ pl: 4 }}
                 >
                   <ListItemText primary={project.title}></ListItemText>
@@ -88,7 +96,7 @@ const ProjectsList = () => {
           </List>
         </Collapse>
       </List>
-    </div>
+    </>
   );
 };
 

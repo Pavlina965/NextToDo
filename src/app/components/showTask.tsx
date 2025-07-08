@@ -30,6 +30,7 @@ import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -47,25 +48,25 @@ export interface TaskProps {
   done?: boolean;
   id?: number;
   dueDate?: Date;
+  projectId?: number;
 }
 
-const ShowTask: React.FC<{ projectId?: number | undefined }> = ({
-  projectId,
-}) => {
+const ShowTask: React.FC = () => {
   const { data: session } = useSession();
-
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get("id");
+  const isUnassigned = Boolean(searchParams.get("unassigned"));
+  const showToday = Boolean(searchParams.get("showToday"));
   // const [editTask, setEditTask] = useState<TaskProps | null>(null);
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const isMobile = useMediaQuery("(max-width: 600px)");
 
   const loadTasks = async () => {
     try {
-      if (projectId) {
-        console.log(projectId);
-        // const data = await fetchTasks(projectId);
-        // setTasks(data);
-      }
-      const data = await fetchTasks();
+      const data =
+        projectId || isUnassigned || showToday
+          ? await fetchTasks(Number(projectId), isUnassigned, showToday)
+          : await fetchTasks();
       setTasks(data);
     } catch (error) {
       console.error("Error loading tasks:", error);
@@ -73,8 +74,7 @@ const ShowTask: React.FC<{ projectId?: number | undefined }> = ({
   };
   useEffect(() => {
     loadTasks();
-  }, []);
-
+  }, [projectId, isUnassigned, showToday]);
   async function HandleDeleteTask(taskId: number | undefined) {
     if (taskId !== undefined) {
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
@@ -108,13 +108,16 @@ const ShowTask: React.FC<{ projectId?: number | undefined }> = ({
                     <TableCell
                       sx={{ display: { xs: "none", md: "table-cell" } }}
                     >
-                      Priority
+                      projectID
                     </TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <CreateTaskForm refreshTasks={() => loadTasks()} />
+                  <CreateTaskForm
+                    refreshTasks={() => loadTasks()}
+                    selectedProjectId={Number(projectId)}
+                  />
                   {tasks.map((task) => (
                     <Task
                       key={task.id}
@@ -130,7 +133,10 @@ const ShowTask: React.FC<{ projectId?: number | undefined }> = ({
           </Box>
         ) : (
           <Box sx={{ padding: 0, margin: 0 }}>
-            <CreateTaskForm refreshTasks={loadTasks} />
+            <CreateTaskForm
+              refreshTasks={loadTasks}
+              selectedProjectId={Number(projectId)}
+            />
             <Stack spacing={2}>
               {tasks.map((task) => (
                 <Task
@@ -186,7 +192,7 @@ const Task = ({ todo, onDelete, setTasks, isMobile }: TodoProps) => {
       </TableCell>
       {/* <TableCell>{todo.done ? "Done" : "Not done"}</TableCell> */}
       <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-        Priority will be there
+        {todo.projectId}
       </TableCell>
       <TableCell>
         <Button

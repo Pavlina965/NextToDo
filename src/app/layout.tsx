@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import Providers from "./components/SessionProvider";
 
 import Sidebar from "./components/sidebar";
+import React from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
-          <Sidebar> {children}</Sidebar>
+          <Sidebar>{children}</Sidebar>
         </Providers>
       </body>
     </html>

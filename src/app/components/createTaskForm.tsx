@@ -8,9 +8,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 interface TaskFormProps {
   refreshTasks: () => void;
+  selectedProjectId: number;
 }
 
-function CreateTaskForm({ refreshTasks }: TaskFormProps) {
+function CreateTaskForm({ refreshTasks, selectedProjectId }: TaskFormProps) {
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<TaskProps>({});
   const handleOpen = () => setOpen(true);
@@ -31,6 +32,7 @@ function CreateTaskForm({ refreshTasks }: TaskFormProps) {
   };
 
   const handleSubmit = async () => {
+    task.projectId = selectedProjectId;
     addTask(task).then(() => {
       refreshTasks();
       handleClose();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   AppBar,
@@ -19,15 +20,42 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { ExpandLess } from "@mui/icons-material";
 
-import React from "react";
+import React, { useState } from "react";
 import { useSession, signOut, signIn } from "next-auth/react";
 import ProjectsList from "./projectsList";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar({ children }: { children: React.ReactNode }) {
   const drawerWidth = 260;
   const isMobile = useMediaQuery("(max-width: 600px)");
   const [openDrawer, setOpenDrawer] = React.useState(isMobile ? false : true);
   const [openUserMenu, setOpenUserMenu] = React.useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null
+  );
+  const router = useRouter();
+
+  const handleProjectSelect = (
+    projectId: number | null,
+    isUnassigned: boolean = false,
+    showToday: boolean = false
+  ) => {
+    setSelectedProjectId(projectId);
+
+    if (isUnassigned) {
+      router.push("/?unassigned=true");
+      return;
+    }
+    if (showToday) {
+      router.push("/?showToday=true");
+      return;
+    }
+    if (projectId === null) {
+      router.push("/");
+      return;
+    }
+    router.push(`/?id=${projectId}`);
+  };
 
   const handleDrawerToggle = () => {
     setOpenDrawer(!openDrawer);
@@ -73,7 +101,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <ChevronLeftIcon sx={{ color: "white" }} />
             </IconButton>
           </Box>
-          <ProjectsList />
+          <ProjectsList onSelectProject={handleProjectSelect} />
 
           {/* </Box> */}
         </Drawer>
@@ -97,7 +125,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <ExpandLess sx={{ color: "white" }} />
             </IconButton>
           </Box>
-          <ProjectsList />
+          <ProjectsList onSelectProject={handleProjectSelect} />
         </SwipeableDrawer>
       )}
 
@@ -175,7 +203,9 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           </Toolbar>
         </AppBar>
         <Box component={"main"} sx={{ mt: 8, p: 3 }}>
-          {children}
+          {React.cloneElement(children as React.ReactElement, {
+            selectedProjectId,
+          })}
         </Box>
       </Box>
     </Box>
